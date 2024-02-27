@@ -46,12 +46,15 @@ function love.load()
 	graphicsObjects.lineShader = love.graphics.newShader("shaders/line.glsl")
 
 	graphicsObjects.radarPlaneMesh = love.graphics.newMesh(consts.vertexFormat, {
-		{-1,0,-1, 0,0, 0,-1,0}, {-1,0,1, 0,1, 0,-1,0}, {1,0,-1, 1,0, 0,-1,0},
-		{1,0,-1, 1,0, 0,-1,0}, {-1,0,1, 0,1, 0,-1,0}, {1,0,1, 1,1, 0,-1,0},
+		{-1,0,-1, 0,0, 0,-1,0}, {1,0,-1, 1,0, 0,-1,0}, {-1,0,1, 0,1, 0,-1,0},
+		{1,0,-1, 1,0, 0,-1,0}, {1,0,1, 1,1, 0,-1,0}, {-1,0,1, 0,1, 0,-1,0},
 	}, "triangles")
 	graphicsObjects.radarShader = love.graphics.newShader("shaders/radar.glsl")
 
 	graphicsObjects.icosahedronMesh = loadObj("meshes/icosahedron.obj")
+	
+	graphicsObjects.outputCanvas = love.graphics.newCanvas(love.graphics.getDimensions())
+	graphicsObjects.outputCanvasSetup = {graphicsObjects.outputCanvas, depth = true}
 
 	state = {}
 	state.time = 0
@@ -103,4 +106,5 @@ end
 
 function love.draw()
 	drawState(state, graphicsObjects)
+	love.graphics.draw(graphicsObjects.outputCanvas, 0, graphicsObjects.outputCanvas:getHeight(), 0, 1, -1)
 end

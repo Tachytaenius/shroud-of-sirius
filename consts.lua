@@ -13,6 +13,8 @@ consts.frontFaceWinding = "cw"
 consts.meshCullMode = "back"
 consts.farPlaneDistance = 10000
 consts.nearPlaneDistance = 0.0001
+-- Export OBJs from Blender with +Y up and +Z forward
+consts.loadObjCoordMultiplier = vec3(1, 1, -1) -- TODO: Why?
 
 consts.tau = math.pi * 2
 
@@ -20,7 +22,7 @@ consts.targettingAngleDistanceThreshold = 0.0025
 
 -- TODO: Make controls use these
 consts.forwardVector = vec3(0, 0, 1)
-consts.upVector = vec3(0, -1, 0)
+consts.upVector = vec3(0, 1, 0)
 
 consts.verticesPerBeamCylinderSlice = 8
 
@@ -33,7 +35,7 @@ consts.radarBlipRadius = 0.05
 consts.shipShaderSkyMultiplier = 0.4
 consts.ambientLightIntensity = 0.2
 
-consts.starDirection = vec3.normalise(vec3(1, -1, 1))
+consts.starDirection = vec3.normalise(vec3(1, 1, 1))
 consts.starAngularRadius = 0.1
 consts.starHaloAngularRange = 0.05
 consts.starColour = {1, 1, 1}

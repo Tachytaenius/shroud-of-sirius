@@ -1,5 +1,7 @@
 local consts = require("consts")
 
+local mul = consts.loadObjCoordMultiplier
+
 return function(path)
 	local geometry = {}
 	local uv = {}
@@ -18,9 +20,9 @@ return function(path)
 					local vn = normal[tonumber(iterator())]
 					
 					local vert = { -- see consts.vertexFormat
-						v[1], -v[2], v[3],
+						v[1] * mul.x, v[2] * mul.y, v[3] * mul.z,
 						vt[1], vt[2],
-						vn[1], vn[2], vn[3]
+						vn[1] * mul.x, vn[2] * mul.y, vn[3] * mul.z
 					}
 					outVerts[#outVerts+1] = vert
 				else
@@ -29,7 +31,6 @@ return function(path)
 			elseif word == "#" then
 				break
 			elseif word == "s" then
-				-- TODO
 				break
 			elseif word == "v" then
 				item = {}

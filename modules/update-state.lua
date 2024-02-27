@@ -14,19 +14,19 @@ local function updateState(state, dt, mouseDx, mouseDy)
 		if love.keyboard.isDown("s") then translation.z = translation.z - 1 end
 		if love.keyboard.isDown("a") then translation.x = translation.x - 1 end
 		if love.keyboard.isDown("d") then translation.x = translation.x + 1 end
-		if love.keyboard.isDown("q") then translation.y = translation.y + 1 end
-		if love.keyboard.isDown("e") then translation.y = translation.y - 1 end
+		if love.keyboard.isDown("q") then translation.y = translation.y - 1 end
+		if love.keyboard.isDown("e") then translation.y = translation.y + 1 end
 		player.targetVelocity = vec3.rotate(normaliseOrZero(translation), player.orientation) * player.maxSpeed
 
 		local rotation = vec3()
 		if love.keyboard.isDown("j") then rotation.y = rotation.y - 1 end
 		if love.keyboard.isDown("l") then rotation.y = rotation.y + 1 end
-		if love.keyboard.isDown("i") then rotation.x = rotation.x + 1 end
-		if love.keyboard.isDown("k") then rotation.x = rotation.x - 1 end
-		if love.keyboard.isDown("u") then rotation.z = rotation.z - 1 end
-		if love.keyboard.isDown("o") then rotation.z = rotation.z + 1 end
+		if love.keyboard.isDown("i") then rotation.x = rotation.x - 1 end
+		if love.keyboard.isDown("k") then rotation.x = rotation.x + 1 end
+		if love.keyboard.isDown("u") then rotation.z = rotation.z + 1 end
+		if love.keyboard.isDown("o") then rotation.z = rotation.z - 1 end
 		-- rotation.y = rotation.y + mouseDx
-		-- rotation.x = rotation.x - mouseDy
+		-- rotation.x = rotation.x + mouseDy
 		player.targetAngularVelocity = normaliseOrZero(rotation) * player.maxAngularSpeed
 	end
 

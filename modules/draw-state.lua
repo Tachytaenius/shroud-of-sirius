@@ -19,17 +19,20 @@ local function drawState(state, graphicsObjects)
 	local radarPlaneMesh, radarShader, radarBlipAndStalkShader = graphicsObjects.radarPlaneMesh, graphicsObjects.radarShader, graphicsObjects.radarBlipAndStalkShader
 	local shipShader, backgroundShader = graphicsObjects.shipShader, graphicsObjects.backgroundShader
 	local icosahedronMesh = graphicsObjects.icosahedronMesh
+	local outputCanvas = graphicsObjects.outputCanvas
+	local outputCanvasSetup = graphicsObjects.outputCanvasSetup
+
+	love.graphics.setCanvas(outputCanvasSetup)
+	love.graphics.clear()
 
 	local projectionMatrix = mat4.perspectiveLeftHanded(
 		love.graphics.getWidth() / love.graphics.getHeight(),
 		camera.verticalFov,
 		consts.farPlaneDistance,
 		consts.nearPlaneDistance
-	) * mat4.transform(
-		vec3(), quat(), vec3(1, -1, 1)
 	)
 	local cameraMatrix = mat4.camera(
-		camera.position + vec3.rotate(state.entities:get(2).cameraOffset or vec3(), camera.orientation),
+		camera.position + vec3.rotate(camera.cameraOffset or vec3(), camera.orientation),
 		camera.orientation
 	) -- For objects
 	local cameraMatrixStationary = mat4.camera(vec3(), camera.orientation) -- For background
@@ -75,7 +78,7 @@ local function drawState(state, graphicsObjects)
 
 	-- Draw radar blips and stalks
 	local radarTransform = mat4.transform(
-		vec3(0, 1.1 + math.sin(state.time * 0.5) * 0.01, 2),
+		vec3(0, -1.1 - math.sin(state.time * 0.5) * 0.05, 2),
 		quat(),
 		0.75
 	)
@@ -131,6 +134,7 @@ local function drawState(state, graphicsObjects)
 	love.graphics.setColor(1, 1, 1)
 
 	love.graphics.setShader()
+	love.graphics.setCanvas()
 end
 
 return drawState

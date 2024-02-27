@@ -13,7 +13,7 @@ vec4 effect(vec4 colour, sampler2D image, vec2 textureCoords, vec2 windowCoords)
 	vec3 direction = normalize(
 		(
 			screenToSky * vec4( // screenToSky is inverse(perspectiveProjectionMatrix * cameraMatrixAtOriginWithCameraOrientation), and the vec4 is a position on the picture plane (near plane) in homogenous coordinates
-				(textureCoords * 2.0 - 1.0) * vec2(1.0, -1.0),
+				textureCoords * 2.0 - 1.0,
 				nearPlaneDistance,
 				1.0
 			)

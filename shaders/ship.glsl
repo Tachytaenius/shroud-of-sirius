@@ -12,7 +12,7 @@ uniform mat4 modelToScreen;
 attribute vec3 VertexNormal;
 
 vec4 position(mat4 loveTransform, vec4 homogenVertexPosition) {
-	fragmentNormal = normalize(modelToWorldNormal * (VertexNormal * vec3(1.0, -1.0, 1.0))); // TODO: Does this need normalising?
+	fragmentNormal = normalize(modelToWorldNormal * VertexNormal); // TODO: Does this need normalising?
 
 	fragmentPosition = (modelToWorld * homogenVertexPosition).xyz;
 
@@ -37,7 +37,7 @@ uniform float starColourLightingMultiplier;
 vec4 effect(vec4 colour, sampler2D image, vec2 textureCoords, vec2 windowCoords) {
 	vec3 skyEffect = skyMultiplier * sampleSky(
 		reflect(
-			normalize(cameraPosition - fragmentPosition),
+			normalize(fragmentPosition - cameraPosition),
 			fragmentNormal
 		),
 		time,
@@ -49,7 +49,7 @@ vec4 effect(vec4 colour, sampler2D image, vec2 textureCoords, vec2 windowCoords)
 
 	vec3 albedo = Texel(shipAlbedo, textureCoords).rgb;
 
-	vec3 starlight = starColour * starColourLightingMultiplier * max(dot(fragmentNormal, -starDirection), 0.0);
+	vec3 starlight = starColour * starColourLightingMultiplier * max(dot(fragmentNormal, starDirection), 0.0);
 	vec3 lighting = starlight + ambientLight;
 
 	return colour * vec4(
