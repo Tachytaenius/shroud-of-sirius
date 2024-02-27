@@ -58,7 +58,7 @@ vec3 hsv2rgb(vec3 hsv) {
 
 vec3 sampleSky(
 	vec3 direction, float time,
-	vec3 starColour, vec3 starDirection, float starAngularRadius, float starHaloAngularRange
+	vec3 starColour, vec3 starDirection, float starAngularRadius, float starHaloAngularRange, float skyStarColourMultiplier
 ) {
 	vec3 directionOriginal = direction;
 	direction.z /= 4.0;
@@ -115,6 +115,6 @@ vec3 sampleSky(
 	float starEffectAmount = 1.0 - calculateFogFactor(angleDistance, starAngularRadius + starHaloAngularRange, starHaloAngularRange);
 	starEffectAmount = max(starEffectAmount - (1.0 - starEffectAmount) * pow(simplex3d(directionOriginal * 24.0 + time * 0.5 * starDirection) * 0.5 + 0.5, 2.0), 0.0);
 
-	vec3 skyColour = mix(mix(baseSkyColourPow, vec3(1.0), whiteness), starColour, starEffectAmount);
+	vec3 skyColour = mix(baseSkyColourPow, vec3(1.0), whiteness) + starColour * skyStarColourMultiplier * starEffectAmount;
 	return skyColour;
 }

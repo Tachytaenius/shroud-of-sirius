@@ -7,6 +7,7 @@ uniform vec3 starDirection;
 uniform vec3 starColour;
 uniform float starAngularRadius;
 uniform float starHaloAngularRange;
+uniform float skyStarColourMultiplier;
 
 vec4 effect(vec4 colour, sampler2D image, vec2 textureCoords, vec2 windowCoords) {
 	// This solution to get the direction was figured out by me
@@ -25,6 +26,7 @@ vec4 effect(vec4 colour, sampler2D image, vec2 textureCoords, vec2 windowCoords)
 		starColour,
 		starDirection,
 		starAngularRadius,
-		starHaloAngularRange
+		starHaloAngularRange,
+		skyStarColourMultiplier
 	), 1.0);
 }

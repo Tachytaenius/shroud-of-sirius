@@ -38,7 +38,7 @@ consts.ambientLightIntensity = 0.2
 consts.starDirection = vec3.normalise(vec3(1, 1, 1))
 consts.starAngularRadius = 0.1
 consts.starHaloAngularRange = 0.05
-consts.starColour = {1, 1, 1}
-consts.starColourLightingMultiplier = 0.5 -- Colour of star when you look straight at it in the sky is different to its effect on a surface
+consts.starColour = {0.5, 0.5, 0.5}
+consts.skyStarColourMultiplier = 5 -- Colour of star when you look straight at it in the sky is different to its effect on a surface
 
 return consts

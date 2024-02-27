@@ -48,6 +48,7 @@ local function drawState(state, graphicsObjects)
 	backgroundShader:send("starHaloAngularRange", consts.starHaloAngularRange)
 	backgroundShader:send("starDirection", {vec3.components(consts.starDirection)})
 	backgroundShader:send("starColour", consts.starColour)
+	backgroundShader:send("skyStarColourMultiplier", consts.skyStarColourMultiplier)
 	love.graphics.draw(dummyTexture, 0, 0, 0, love.graphics.getDimensions())
 
 	-- Draw entities
@@ -58,7 +59,7 @@ local function drawState(state, graphicsObjects)
 	shipShader:send("starHaloAngularRange", consts.starHaloAngularRange)
 	shipShader:send("starDirection", {vec3.components(consts.starDirection)})
 	shipShader:send("starColour", consts.starColour)
-	shipShader:send("starColourLightingMultiplier", consts.starColourLightingMultiplier)
+	shipShader:send("skyStarColourMultiplier", consts.skyStarColourMultiplier)
 	shipShader:send("cameraPosition", {vec3.components(camera.position)})
 	for entity in state.entities:elements() do
 		if entity ~= camera then

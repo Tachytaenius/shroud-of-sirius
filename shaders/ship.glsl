@@ -32,7 +32,7 @@ uniform vec3 starDirection;
 uniform vec3 starColour;
 uniform float starAngularRadius;
 uniform float starHaloAngularRange;
-uniform float starColourLightingMultiplier;
+uniform float skyStarColourMultiplier;
 
 vec4 effect(vec4 colour, sampler2D image, vec2 textureCoords, vec2 windowCoords) {
 	vec3 skyEffect = skyMultiplier * sampleSky(
@@ -44,12 +44,13 @@ vec4 effect(vec4 colour, sampler2D image, vec2 textureCoords, vec2 windowCoords)
 		starColour,
 		starDirection,
 		starAngularRadius,
-		starHaloAngularRange
+		starHaloAngularRange,
+		skyStarColourMultiplier
 	);
 
 	vec3 albedo = Texel(shipAlbedo, textureCoords).rgb;
 
-	vec3 starlight = starColour * starColourLightingMultiplier * max(dot(fragmentNormal, starDirection), 0.0);
+	vec3 starlight = starColour * max(dot(fragmentNormal, starDirection), 0.0);
 	vec3 lighting = starlight + ambientLight;
 
 	return colour * vec4(
