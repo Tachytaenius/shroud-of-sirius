@@ -29,7 +29,7 @@ local function triangleRaycast(rayStart, rayEnd, triangleVertex1, triangleVertex
 		vec3.dot(normal, vec3.cross(v2ToV3, triangleVertex2 - p)) > 0 and
 		vec3.dot(normal, vec3.cross(v3ToV1, triangleVertex3 - p)) > 0
 	then
-		return tForDirection / #startToEnd
+		return tForDirection / #startToEnd, normal
 	end
 end
 

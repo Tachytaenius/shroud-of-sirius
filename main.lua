@@ -98,8 +98,13 @@ function love.load()
 				damagePerSecond = 200,
 				beamRange = 500,
 				beamRadius = 0.4,
+
 				beamHitT = nil,
+				beamHitEntity = nil,
+				beamHitPos = nil,
+				beamHitNormal = nil,
 				firing = false
+
 				-- Etc
 			},
 			{
@@ -109,8 +114,13 @@ function love.load()
 				damagePerSecond = 200,
 				beamRange = 500,
 				beamRadius = 0.4,
+
 				beamHitT = nil,
+				beamHitEntity = nil,
+				beamHitPos = nil,
+				beamHitNormal = nil,
 				firing = false
+
 				-- Etc
 			}
 		},

@@ -46,7 +46,7 @@ local function updateState(state, dt, mouseDx, mouseDy)
 			for _, gun in ipairs(entity.guns) do
 				assert(not gun.firing, "Gun should not be firing at this point in update (its firing state was not cleared)")
 				gun.firing = true
-				local closestT, closestEntity
+				local closestHitT, closestHitEntity, closestHitNormal
 				-- TODO: Rotate gun a little to target entity before calling
 				local rayStart, ray = getGunRay(entity, gun) -- TODO: Spatial hashing
 				for entity2 in state.entities:elements() do
@@ -54,12 +54,12 @@ local function updateState(state, dt, mouseDx, mouseDy)
 						local rayEnd = rayStart + ray
 
 						-- local t1, t2 = sphereRaycast(rayStart, rayEnd, entity2.position, entity2.colliderRadius * entity2.scale)
-						-- if t1 and 0 <= t1 and t1 <= 1 and (not closestT or t1 < closestT) then
-						-- 	closestT = t1
+						-- if t1 and 0 <= t1 and t1 <= 1 and (not closestHitT or t1 < closestHitT) then
+						-- 	closestHitT = t1
 						-- 	closestEntity = entity2
 						-- end
-						-- if t2 and 0 <= t2 and t2 <= 1 and (not closestT or t2 < closestT) then
-						-- 	closestT = t2
+						-- if t2 and 0 <= t2 and t2 <= 1 and (not closestHitT or t2 < closestHitT) then
+						-- 	closestHitT = t2
 						-- 	closestEntity = entity2
 						-- end
 
@@ -71,16 +71,22 @@ local function updateState(state, dt, mouseDx, mouseDy)
 							local v1 = entity2.position + vec3.rotate(entity2.scale * vec3(meshV1[1], meshV1[2], meshV1[3]), entity2.orientation)
 							local v2 = entity2.position + vec3.rotate(entity2.scale * vec3(meshV2[1], meshV2[2], meshV2[3]), entity2.orientation)
 							local v3 = entity2.position + vec3.rotate(entity2.scale * vec3(meshV3[1], meshV3[2], meshV3[3]), entity2.orientation)
-							local t = traingleRaycast(rayStart, rayEnd, v1, v2, v3)
-							if t and 0 <= t and t <= 1 and (not closestT or t < closestT) then
-								closestT = t
-								closestEntity = entity2
+							local t, normal = traingleRaycast(rayStart, rayEnd, v1, v2, v3)
+							if t and 0 <= t and t <= 1 and (not closestHitT or t < closestHitT) then
+								closestHitT = t
+								closestHitEntity = entity2
+								closestHitNormal = normal
 							end
 						end
 					end
 				end
 				-- TODO: Damage closestEntity
-				gun.beamHitT = closestT
+				gun.beamHitT = closestHitT
+				if closestHitT then
+					gun.beamHitPos = rayStart + ray * closestHitT
+				end
+				gun.beamHitEntity = closestHitEntity
+				gun.beamHitNormal = closestHitNormal
 			end
 		end
 	end
