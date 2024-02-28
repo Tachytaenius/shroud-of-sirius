@@ -57,7 +57,9 @@ function love.load()
 	graphicsObjects.outputCanvasSetup = {graphicsObjects.outputCanvas, depth = true}
 
 	state = {}
+
 	state.time = 0
+
 	state.teams = {}
 	state.teams.aliens = {
 		relations = {}
@@ -67,7 +69,10 @@ function love.load()
 	}
 	state.teams.aliens.relations[state.teams.humans] = "enemy"
 	state.teams.humans.relations[state.teams.aliens] = "enemy"
+
 	state.entities = list()
+
+	local mesh, meshVertices = loadObj("meshes/ship.obj")
 	local player = {
 		position = vec3(),
 		velocity = vec3(),
@@ -80,7 +85,8 @@ function love.load()
 		maxAngularSpeed = 1,
 		angularAcceleration = 2,
 
-		mesh = loadObj("meshes/ship.obj"),
+		mesh = mesh,
+		meshVertices = meshVertices,
 		albedoTexture = love.graphics.newImage("textures/shipAlbedo.png"),
 
 		team = state.teams.aliens,
@@ -113,12 +119,12 @@ function love.load()
 		hull = 1000,
 
 		verticalFov = math.rad(90),
-		cameraOffset = vec3(0, 0.5, 0.5), -- Scaled by scale
-
-		colliderRadius = 0.75 -- Scaled by scale
+		cameraOffset = vec3(0, 0.5, 0.5) -- Scaled by scale
 	}
 	state.entities:add(player)
 	state.player = player
+
+	local mesh, meshVertices = loadObj("meshes/ship.obj")
 	state.entities:add({
 		position = vec3(0, 0, 100),
 		velocity = vec3(),
@@ -131,7 +137,8 @@ function love.load()
 		maxAngularSpeed = 1,
 		angularAcceleration = 2,
 
-		mesh = loadObj("meshes/ship.obj"),
+		mesh = mesh,
+		meshVertices = meshVertices,
 		albedoTexture = love.graphics.newImage("textures/shipAlbedo.png"),
 		
 		team = state.teams.humans,

@@ -7,6 +7,7 @@ local moveVectorToTarget = require("modules.move-vector-to-target")
 local turnEntityToTarget = require("modules.turn-entity-to-target")
 local sphereRaycast = require("modules.sphere-raycast")
 local getGunRay = require("modules.get-gun-ray")
+local traingleRaycast = require("modules.triangle-raycast")
 
 local function updateState(state, dt, mouseDx, mouseDy)
 	for entity in state.entities:elements() do
@@ -51,14 +52,30 @@ local function updateState(state, dt, mouseDx, mouseDy)
 				for entity2 in state.entities:elements() do
 					if entity ~= entity2 then
 						local rayEnd = rayStart + ray
-						local t1, t2 = sphereRaycast(rayStart, rayEnd, entity2.position, entity2.colliderRadius * entity2.scale)
-						if t1 and 0 <= t1 and t1 <= 1 and (not closestT or t1 < closestT) then
-							closestT = t1
-							closestEntity = entity2
-						end
-						if t2 and 0 <= t2 and t2 <= 1 and (not closestT or t2 < closestT) then
-							closestT = t2
-							closestEntity = entity2
+
+						-- local t1, t2 = sphereRaycast(rayStart, rayEnd, entity2.position, entity2.colliderRadius * entity2.scale)
+						-- if t1 and 0 <= t1 and t1 <= 1 and (not closestT or t1 < closestT) then
+						-- 	closestT = t1
+						-- 	closestEntity = entity2
+						-- end
+						-- if t2 and 0 <= t2 and t2 <= 1 and (not closestT or t2 < closestT) then
+						-- 	closestT = t2
+						-- 	closestEntity = entity2
+						-- end
+
+						for i = 1, #entity2.meshVertices, 3 do
+							local meshV1 = entity2.meshVertices[i]
+							local meshV2 = entity2.meshVertices[i + 1]
+							local meshV3 = entity2.meshVertices[i + 2]
+							-- TODO: Probably rotate and translate beam instead of mesh
+							local v1 = entity2.position + vec3.rotate(entity2.scale * vec3(meshV1[1], meshV1[2], meshV1[3]), entity2.orientation)
+							local v2 = entity2.position + vec3.rotate(entity2.scale * vec3(meshV2[1], meshV2[2], meshV2[3]), entity2.orientation)
+							local v3 = entity2.position + vec3.rotate(entity2.scale * vec3(meshV3[1], meshV3[2], meshV3[3]), entity2.orientation)
+							local t = traingleRaycast(rayStart, rayEnd, v1, v2, v3)
+							if t and 0 <= t and t <= 1 and (not closestT or t < closestT) then
+								closestT = t
+								closestEntity = entity2
+							end
 						end
 					end
 				end
