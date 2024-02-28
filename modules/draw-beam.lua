@@ -28,7 +28,7 @@ local function drawBeam(origin, lineVector, radius, worldToScreenMatrix)
 	if shader:hasUniform("modelToScreen") then shader:send("modelToScreen", {mat4.components(modelToScreenMatrix)}) end
 	if shader:hasUniform("modelToWorldNormal") then shader:send("modelToWorldNormal", {normalMatrix(modelToWorldMatrix)}) end
 
-	love.graphics.setMeshCullMode("none") -- Improves radar stalks
+	love.graphics.setMeshCullMode("none") -- Improves look
 
 	love.graphics.draw(baseCylinderMesh)
 

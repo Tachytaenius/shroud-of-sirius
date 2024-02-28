@@ -41,21 +41,21 @@ local function generateBaseCylinder(verticesPerSlice)
 			-- Form quads bridging slices with matching vertices
 			-- Triangle 1
 			vertices[#vertices + 1] = thisSliceVertices[j]
-			vertices[#vertices + 1] = previousSliceVertices[(j + 1) % verticesPerSlice]
 			vertices[#vertices + 1] = previousSliceVertices[j]
+			vertices[#vertices + 1] = previousSliceVertices[(j + 1) % verticesPerSlice]
 			-- Triangle 2
 			vertices[#vertices + 1] = thisSliceVertices[j]
-			vertices[#vertices + 1] = previousSliceVertices[(j + 1) % verticesPerSlice]
 			vertices[#vertices + 1] = thisSliceVertices[(j + 1) % verticesPerSlice]
+			vertices[#vertices + 1] = previousSliceVertices[(j + 1) % verticesPerSlice]
 		end
 		-- Handle final pair of triangles specially to avoid weird texture issues with the u coordinate
-		-- We modify the vertices which were added using i + 1
+		-- We modify the vertices which were added using j + 1
 		local function modify(amountToGoBack)
 			local vertex = shallowClone(vertices[#vertices - amountToGoBack])
 			vertex[4] = vertex[4] + 1
 			vertices[#vertices - amountToGoBack] = vertex
 		end
-		modify(4)
+		modify(3)
 		modify(1)
 		modify(0)
 	end
