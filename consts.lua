@@ -27,9 +27,11 @@ consts.upVector = vec3(0, 1, 0)
 consts.verticesPerBeamCylinderSlice = 8
 
 consts.radarColour = {1, 0, 0.75, 0.5}
-consts.allyRadarColour = {0, 1, 0}
-consts.neutralRadarColour = {1, 1, 0}
-consts.enemyRadarColour = {1, 0, 0}
+consts.radarObjectColoursByRelation = {
+	ally = {0, 1, 0},
+	neutral = {1, 1, 0},
+	enemy = {1, 0, 0}
+}
 consts.radarBlipRadius = 0.05
 
 consts.shipShaderSkyMultiplier = 0.4

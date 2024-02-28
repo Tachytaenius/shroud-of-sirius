@@ -8,6 +8,7 @@ local consts = require("consts")
 local normalMatrix = require("modules.normal-matrix")
 local drawBeam = require("modules.draw-beam")
 local normaliseOrZero = require("modules.normalise-or-zero")
+local getGunRay = require("modules.get-gun-ray")
 
 local function drawState(state, graphicsObjects)
 	local camera = state.player
@@ -16,7 +17,7 @@ local function drawState(state, graphicsObjects)
 
 	local dummyTexture = graphicsObjects.dummyTexture
 	local lineMesh, lineShader = graphicsObjects.lineMesh, graphicsObjects.lineShader
-	local radarPlaneMesh, radarShader, radarBlipAndStalkShader = graphicsObjects.radarPlaneMesh, graphicsObjects.radarShader, graphicsObjects.radarBlipAndStalkShader
+	local radarPlaneMesh, radarShader, solidShader = graphicsObjects.radarPlaneMesh, graphicsObjects.radarShader, graphicsObjects.solidShader
 	local shipShader, backgroundShader = graphicsObjects.shipShader, graphicsObjects.backgroundShader
 	local icosahedronMesh = graphicsObjects.icosahedronMesh
 	local outputCanvas = graphicsObjects.outputCanvas
@@ -32,7 +33,7 @@ local function drawState(state, graphicsObjects)
 		consts.nearPlaneDistance
 	)
 	local cameraMatrix = mat4.camera(
-		camera.position + vec3.rotate(camera.cameraOffset or vec3(), camera.orientation),
+		camera.position + vec3.rotate((camera.cameraOffset or vec3()) * camera.scale, camera.orientation),
 		camera.orientation
 	) -- For objects
 	local cameraMatrixStationary = mat4.camera(vec3(), camera.orientation) -- For background
@@ -77,6 +78,24 @@ local function drawState(state, graphicsObjects)
 		end
 	end
 
+	-- Draw beams
+	love.graphics.setShader(solidShader)
+	for entity in state.entities:elements() do
+		for _, gun in ipairs(entity.guns) do
+			if gun.firing then
+				love.graphics.setColor(gun.beamColour)
+				local rayStart, ray = getGunRay(entity, gun)
+				drawBeam(
+					rayStart,
+					ray * (gun.beamHitT or 1),
+					gun.beamRadius,
+					projectionMatrix * cameraMatrix
+				)
+			end
+		end
+	end
+	love.graphics.setColor(1, 1, 1)
+
 	-- Draw radar blips and stalks
 	local radarTransform = mat4.transform(
 		vec3(0, -1.1 - math.sin(state.time * 0.5) * 0.05, 2),
@@ -87,7 +106,7 @@ local function drawState(state, graphicsObjects)
 	local radarExponent = 0.5
 	local function drawRadarObject(relativePosition, colour)
 		local distance = #relativePosition
-		love.graphics.setShader(radarBlipAndStalkShader)
+		love.graphics.setShader(solidShader)
 		if distance <= radarRange then
 			local direction = normaliseOrZero(relativePosition)
 			local newDirection = vec3.rotate(direction, quat.inverse(camera.orientation))
@@ -96,7 +115,7 @@ local function drawState(state, graphicsObjects)
 
 			love.graphics.setColor(colour)
 
-			radarBlipAndStalkShader:send("modelToScreen", {mat4.components(projectionMatrix * radarTransform * mat4.transform(
+			solidShader:send("modelToScreen", {mat4.components(projectionMatrix * radarTransform * mat4.transform(
 				posInRadarSpace, quat(), consts.radarBlipRadius
 			))})
 			love.graphics.draw(icosahedronMesh)
@@ -120,7 +139,7 @@ local function drawState(state, graphicsObjects)
 	for entity in state.entities:elements() do
 		if entity ~= camera then
 			local cameraToEntity = entity.position - camera.position
-			drawRadarObject(cameraToEntity, consts.neutralRadarColour)
+			drawRadarObject(cameraToEntity, consts.radarObjectColoursByRelation[camera.team.relations[entity.team] or "neutral"])
 		end
 	end
 	-- Draw radar (last, because it's transparent)

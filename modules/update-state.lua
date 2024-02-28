@@ -5,8 +5,17 @@ local quat = mathsies.quat
 local normaliseOrZero = require("modules.normalise-or-zero")
 local moveVectorToTarget = require("modules.move-vector-to-target")
 local turnEntityToTarget = require("modules.turn-entity-to-target")
+local sphereRaycast = require("modules.sphere-raycast")
+local getGunRay = require("modules.get-gun-ray")
 
 local function updateState(state, dt, mouseDx, mouseDy)
+	for entity in state.entities:elements() do
+		for _, gun in ipairs(entity.guns) do
+			gun.firing = false
+			gun.beamHitT = nil
+		end
+	end
+
 	if state.player then
 		local player = state.player
 		local translation = vec3()
@@ -28,6 +37,35 @@ local function updateState(state, dt, mouseDx, mouseDy)
 		-- rotation.y = rotation.y + mouseDx
 		-- rotation.x = rotation.x + mouseDy
 		player.targetAngularVelocity = normaliseOrZero(rotation) * player.maxAngularSpeed
+	end
+
+	if state.player then
+		local entity = state.player
+		if love.keyboard.isDown("space") then
+			for _, gun in ipairs(entity.guns) do
+				assert(not gun.firing, "Gun should not be firing at this point in update (its firing state was not cleared)")
+				gun.firing = true
+				local closestT, closestEntity
+				-- TODO: Rotate gun a little to target entity before calling
+				local rayStart, ray = getGunRay(entity, gun) -- TODO: Spatial hashing
+				for entity2 in state.entities:elements() do
+					if entity ~= entity2 then
+						local rayEnd = rayStart + ray
+						local t1, t2 = sphereRaycast(rayStart, rayEnd, entity2.position, entity2.colliderRadius * entity2.scale)
+						if t1 and 0 <= t1 and t1 <= 1 and (not closestT or t1 < closestT) then
+							closestT = t1
+							closestEntity = entity2
+						end
+						if t2 and 0 <= t2 and t2 <= 1 and (not closestT or t2 < closestT) then
+							closestT = t2
+							closestEntity = entity2
+						end
+					end
+				end
+				-- TODO: Damage closestEntity
+				gun.beamHitT = closestT
+			end
+		end
 	end
 
 	for entity in state.entities:elements() do

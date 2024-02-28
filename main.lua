@@ -38,7 +38,7 @@ function love.load()
 		love.filesystem.read("shaders/include/sky.glsl") ..
 		love.filesystem.read("shaders/background.glsl")
 	)
-	graphicsObjects.radarBlipAndStalkShader = love.graphics.newShader("shaders/radar-blip-and-stalk.glsl")
+	graphicsObjects.solidShader = love.graphics.newShader("shaders/solid.glsl")
 
 	graphicsObjects.lineMesh = love.graphics.newMesh(consts.vertexFormat, {
 		{1,1,1, 0,0, 0,0,0}, {0,0,0, 0,0, 0,0,0}, {0,0,0, 0,0, 0,0,0}
@@ -58,6 +58,15 @@ function love.load()
 
 	state = {}
 	state.time = 0
+	state.teams = {}
+	state.teams.aliens = {
+		relations = {}
+	}
+	state.teams.humans = {
+		relations = {}
+	}
+	state.teams.aliens.relations[state.teams.humans] = "enemy"
+	state.teams.humans.relations[state.teams.aliens] = "enemy"
 	state.entities = list()
 	local player = {
 		position = vec3(),
@@ -74,8 +83,39 @@ function love.load()
 		mesh = loadObj("meshes/ship.obj"),
 		albedoTexture = love.graphics.newImage("textures/shipAlbedo.png"),
 
+		team = state.teams.aliens,
+		guns = {
+			{
+				offset = vec3(-0.2, 0, 0), -- Scaled by scale
+				type = "laser",
+				beamColour = {0, 1, 1},
+				damagePerSecond = 200,
+				beamRange = 500,
+				beamRadius = 0.4,
+				beamHitT = nil,
+				firing = false
+				-- Etc
+			},
+			{
+				offset = vec3(0.2, 0, 0), -- Scaled by scale
+				type = "laser",
+				beamColour = {0, 1, 1},
+				damagePerSecond = 200,
+				beamRange = 500,
+				beamRadius = 0.4,
+				beamHitT = nil,
+				firing = false
+				-- Etc
+			}
+		},
+
+		maxHull = 1000,
+		hull = 1000,
+
 		verticalFov = math.rad(90),
-		cameraOffset = vec3()
+		cameraOffset = vec3(0, 0.5, 0.5), -- Scaled by scale
+
+		colliderRadius = 0.75 -- Scaled by scale
 	}
 	state.entities:add(player)
 	state.player = player
@@ -93,9 +133,19 @@ function love.load()
 
 		mesh = loadObj("meshes/ship.obj"),
 		albedoTexture = love.graphics.newImage("textures/shipAlbedo.png"),
+		
+		team = state.teams.humans,
+		guns = {
+			
+		},
+
+		maxHull = 1000,
+		hull = 1000,
 
 		verticalFov = math.rad(70),
-		cameraOffset = vec3()
+		cameraOffset = vec3(),
+
+		colliderRadius = 0.75
 	})
 end
 
