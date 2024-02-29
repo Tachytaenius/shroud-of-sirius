@@ -143,8 +143,8 @@ function love.load()
 			neutral = {1, 1, 0},
 			enemy = {1, 0, 0}
 		},
+		scannerRange = 1000,
 		radar = {
-			range = 1000,
 			exponent = 0.5,
 			colour = {1, 0, 0.75, 0.5},
 			blipRadius = 0.05,
@@ -187,9 +187,10 @@ function love.load()
 		},
 
 		ai = {
-			preferredEngagementDistance = 100,
+			preferredEngagementDistance = 150,
 			engagementDistanceToleranceWidth = 20
 		},
+		scannerRange = 1000,
 
 		maxHull = 1000,
 		hull = 1000,

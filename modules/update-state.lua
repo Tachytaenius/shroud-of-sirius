@@ -117,6 +117,40 @@ local function updateState(state, dt, mouseDx, mouseDy)
 	end
 
 	for entity in state.entities:elements() do
+		if entity.ai and state.player ~= entity then
+			-- TODO: Retargetting to closer enemy sometimes depending on dot and other factors
+			-- if not entity.currentTarget then
+				local closest, closestDistance
+				for potentialTarget in state.entities:elements() do
+					if entity ~= potentialTarget and entity.team.relations[potentialTarget.team] == "enemy" then
+						local distance = vec3.distance(entity.position, potentialTarget.position)
+						if not closest or distance < closestDistance then
+							closest = potentialTarget
+							closestDistance = distance
+						end
+					end
+				end
+				entity.currentTarget = closest
+			-- end
+
+			if entity.currentTarget then
+				-- TODO: Target angular velocity, not just hard turning
+				turnEntityToTarget(entity, entity.currentTarget.position, dt)
+
+				local entityToTarget = entity.currentTarget.position - entity.position
+				local entityToTargetDirection = normaliseOrZero(entityToTarget)
+				local entityToTargetDistance = #entityToTarget
+				-- Could probably use math.max and math.min or something instead of two checks per if statement
+				if entityToTargetDistance > entity.ai.preferredEngagementDistance and entityToTargetDistance > entity.ai.preferredEngagementDistance + entity.ai.engagementDistanceToleranceWidth / 2 then
+					entity.targetVelocity = entityToTargetDirection * entity.maxSpeed
+				elseif entityToTargetDistance < entity.ai.preferredEngagementDistance and entityToTargetDistance < entity.ai.preferredEngagementDistance - entity.ai.engagementDistanceToleranceWidth / 2 then
+					entity.targetVelocity = -entityToTargetDirection * entity.maxSpeed
+				else
+					entity.targetVelocity = vec3()
+				end
+			end
+		end
+
 		if entity.targetVelocity then
 			entity.velocity = moveVectorToTarget(entity.velocity, entity.targetVelocity, entity.acceleration, dt)
 		end
@@ -131,8 +165,6 @@ local function updateState(state, dt, mouseDx, mouseDy)
 			entity.orientation = quat.normalise(entity.orientation * quat.fromAxisAngle(entity.angularVelocity * dt))  -- Relative frame of reference, second rotation on right of *?
 		end
 	end
-
-	-- turnEntityToTarget(state.entities:get(2), state.player.position, dt) -- TEMP. Also, TODO: *accelerate* for it
 
 	state.time = state.time + dt
 end

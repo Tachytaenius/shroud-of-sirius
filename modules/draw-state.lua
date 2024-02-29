@@ -143,10 +143,10 @@ local function drawState(state, graphicsObjects)
 		local function drawRadarObject(relativePosition, colour)
 			local distance = #relativePosition
 			love.graphics.setShader(solidShader)
-			if distance <= cameraEntity.radar.range then
+			if distance <= cameraEntity.scannerRange then
 				local direction = normaliseOrZero(relativePosition)
 				local newDirection = vec3.rotate(direction, quat.inverse(cameraEntity.orientation))
-				local newDistance = (distance / cameraEntity.radar.range) ^ cameraEntity.radar.exponent
+				local newDistance = (distance / cameraEntity.scannerRange) ^ cameraEntity.radar.exponent
 				local posInRadarSpace = newDirection * newDistance
 
 				love.graphics.setColor(colour)
