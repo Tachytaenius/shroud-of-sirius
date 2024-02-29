@@ -32,8 +32,9 @@ local function drawState(state, graphicsObjects)
 		consts.farPlaneDistance,
 		consts.nearPlaneDistance
 	)
+	local viewPosition = camera.position + vec3.rotate((camera.cameraOffset or vec3()) * camera.scale, camera.orientation)
 	local cameraMatrix = mat4.camera(
-		camera.position + vec3.rotate((camera.cameraOffset or vec3()) * camera.scale, camera.orientation),
+		viewPosition,
 		camera.orientation
 	) -- For objects
 	local cameraMatrixStationary = mat4.camera(vec3(), camera.orientation) -- For background
@@ -61,7 +62,7 @@ local function drawState(state, graphicsObjects)
 	shipShader:send("starDirection", {vec3.components(consts.starDirection)})
 	shipShader:send("starColour", consts.starColour)
 	shipShader:send("skyStarColourMultiplier", consts.skyStarColourMultiplier)
-	shipShader:send("cameraPosition", {vec3.components(camera.position)})
+	shipShader:send("cameraPosition", {vec3.components(viewPosition)})
 	for entity in state.entities:elements() do
 		if entity ~= camera then
 			local modelToWorldMatrix = mat4.transform(entity.position, entity.orientation, entity.scale)
