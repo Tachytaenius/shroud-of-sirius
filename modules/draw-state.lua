@@ -124,7 +124,7 @@ local function drawState(state, graphicsObjects)
 			drawBeam(
 				posInRadarSpace * vec3(1, 0, 1),
 				posInRadarSpace * vec3(0, 1, 0),
-				0.03,
+				consts.radarStalkRadius,
 				projectionMatrix * radarTransform
 			)
 

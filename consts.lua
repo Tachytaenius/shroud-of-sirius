@@ -33,6 +33,7 @@ consts.radarObjectColoursByRelation = {
 	enemy = {1, 0, 0}
 }
 consts.radarBlipRadius = 0.05
+consts.radarStalkRadius = 0.015
 
 consts.shipShaderSkyMultiplier = 0.4
 consts.ambientLightIntensity = 0.2
