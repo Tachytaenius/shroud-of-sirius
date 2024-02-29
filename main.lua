@@ -129,7 +129,27 @@ function love.load()
 		hull = 1000,
 
 		verticalFov = math.rad(90),
-		cameraOffset = vec3(0, 0.5, 0.5) -- Scaled by scale
+		cameraOffset = vec3(0, 0.5, 0.5), -- Scaled by scale
+
+		radar = {
+			range = 1000,
+			exponent = 0.5,
+			colour = {1, 0, 0.75, 0.5},
+			objectColoursByRelation = {
+				ally = {0, 1, 0},
+				neutral = {1, 1, 0},
+				enemy = {1, 0, 0}
+			},
+			blipRadius = 0.05,
+			stalkRadius = 0.015,
+			position = vec3(0, -1.1, 2),
+			scale = 0.75,
+			yOscillationFrequency = 0.5,
+			yOscillationAmplitude = 0.05,
+			distanceCircleCount = 6,
+			lineThickness = 0.015,
+			angleLineCount = 10
+		}
 	}
 	state.entities:add(player)
 	state.player = player
