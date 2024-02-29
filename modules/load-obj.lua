@@ -1,5 +1,7 @@
 local consts = require("consts")
 
+local vec3 = require("lib.mathsies").vec3
+
 local mul = consts.loadObjCoordMultiplier
 
 return function(path)
@@ -7,7 +9,8 @@ return function(path)
 	local uv = {}
 	local normal = {}
 	local outVerts = {}
-	
+
+	local highestVertexDistance
 	for line in love.filesystem.lines(path) do
 		local item
 		local isTri = false
@@ -19,8 +22,13 @@ return function(path)
 					local vt = uv[tonumber(iterator())]
 					local vn = normal[tonumber(iterator())]
 					
+					local pos = vec3(v[1], v[2], v[3]) * consts.loadObjCoordMultiplier
+					local distance = #pos
+					if not highestVertexDistance or highestVertexDistance < distance then
+						highestVertexDistance = distance
+					end
 					local vert = { -- see consts.vertexFormat
-						v[1] * mul.x, v[2] * mul.y, v[3] * mul.z,
+						pos.x, pos.y, pos.z,
 						vt[1], vt[2],
 						vn[1] * mul.x, vn[2] * mul.y, vn[3] * mul.z
 					}
@@ -49,5 +57,9 @@ return function(path)
 			end
 		end
 	end
-	return love.graphics.newMesh(consts.vertexFormat, outVerts, "triangles"), outVerts
+	return {
+		vertices = outVerts,
+		mesh = love.graphics.newMesh(consts.vertexFormat, outVerts, "triangles"),
+		radius = highestVertexDistance
+	}
 end

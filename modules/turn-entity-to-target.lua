@@ -19,7 +19,7 @@ local function turnEntityToTarget(entity, targetPosition, dt)
 
 		local rotationAxisAngle = rotationRequiredAxis * cappedAngle
 
-		-- if math.abs(getShortestAngleDifference(0, rotationRequiredAngle)) > consts.targettingAngleDistanceThreshold then
+		-- if math.abs(getShortestAngleDifference(0, rotationRequiredAngle)) > consts.aiTargetTurningAngleDistanceThreshold then
 			entity.orientation = quat.normalise(quat.fromAxisAngle(rotationAxisAngle) * entity.orientation) -- Absolute frame of reference, second rotation on left of *?
 		-- end
 	end

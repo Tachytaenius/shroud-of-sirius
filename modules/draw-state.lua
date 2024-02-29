@@ -18,11 +18,17 @@ local function drawState(state, graphicsObjects)
 	local lineMesh, lineShader = graphicsObjects.lineMesh, graphicsObjects.lineShader
 	local radarPlaneMesh, radarShader, solidShader = graphicsObjects.radarPlaneMesh, graphicsObjects.radarShader, graphicsObjects.solidShader
 	local shipShader, backgroundShader = graphicsObjects.shipShader, graphicsObjects.backgroundShader
+	local HUDShader = graphicsObjects.HUDShader
 	local icosahedronMesh = graphicsObjects.icosahedronMesh
+	local worldCanvas = graphicsObjects.worldCanvas
+	local worldCanvasSetup = graphicsObjects.worldCanvasSetup
+	local HUDCanvas = graphicsObjects.HUDCanvas
+	local HUDCanvasSetup = graphicsObjects.HUDCanvasSetup
 	local outputCanvas = graphicsObjects.outputCanvas
-	local outputCanvasSetup = graphicsObjects.outputCanvasSetup
 
-	love.graphics.setCanvas(outputCanvasSetup)
+	-- Render world canvas
+
+	love.graphics.setCanvas(worldCanvasSetup)
 	love.graphics.clear()
 
 	local projectionMatrix = mat4.perspectiveLeftHanded(
@@ -39,18 +45,18 @@ local function drawState(state, graphicsObjects)
 	local cameraMatrixStationary = mat4.camera(vec3(), cameraEntity.orientation) -- For background
 
 	-- Draw sky
-	local screenToSkyMatrix = mat4.inverse(projectionMatrix * cameraMatrixStationary)
-	love.graphics.setDepthMode("lequal", false)
-	love.graphics.setShader(graphicsObjects.backgroundShader)
+	local picturePlaneToSkyMatrix = mat4.inverse(projectionMatrix * cameraMatrixStationary)
+	love.graphics.setDepthMode("always", false)
+	love.graphics.setShader(backgroundShader)
 	backgroundShader:send("time", state.time)
 	backgroundShader:send("nearPlaneDistance", consts.nearPlaneDistance)
-	backgroundShader:send("screenToSky", {mat4.components(screenToSkyMatrix)})
+	backgroundShader:send("picturePlaneToSky", {mat4.components(picturePlaneToSkyMatrix)})
 	backgroundShader:send("starAngularRadius", consts.starAngularRadius)
 	backgroundShader:send("starHaloAngularRange", consts.starHaloAngularRange)
 	backgroundShader:send("starDirection", {vec3.components(consts.starDirection)})
 	backgroundShader:send("starColour", consts.starColour)
 	backgroundShader:send("skyStarColourMultiplier", consts.skyStarColourMultiplier)
-	love.graphics.draw(dummyTexture, 0, 0, 0, outputCanvas:getDimensions())
+	love.graphics.draw(dummyTexture, 0, 0, 0, worldCanvas:getDimensions())
 
 	-- Draw entities
 	love.graphics.setDepthMode("lequal", true)
@@ -95,6 +101,37 @@ local function drawState(state, graphicsObjects)
 		end
 	end
 
+	-- Render HUD canvas
+
+	love.graphics.setCanvas(HUDCanvasSetup)
+	love.graphics.clear()
+
+	love.graphics.setDepthMode("always", false)
+	love.graphics.setShader(HUDShader)
+	HUDShader:send("picturePlaneToSky", {mat4.components(picturePlaneToSkyMatrix)})
+	HUDShader:send("nearPlaneDistance", consts.nearPlaneDistance)
+	love.graphics.setColor(1, 1, 1)
+	if cameraEntity.currentTarget then
+		HUDShader:send("drawTargetSphereOutline", true)
+
+		HUDShader:send("targetSphereOutlineColour", cameraEntity.displayObjectColoursByRelation[cameraEntity.team.relations[cameraEntity.currentTarget.team] or "neutral"])
+		local relativePosition = cameraEntity.currentTarget.position - viewPosition
+		local sphereRadius = cameraEntity.currentTarget.meshRadius * cameraEntity.currentTarget.scale + consts.targettingCircleMeshRadiusPadding
+		local angularRadius = math.acos( -- TODO: Clamp to protect against NaN?
+			math.sqrt((#relativePosition) ^ 2 - sphereRadius ^ 2)
+			/ #relativePosition
+		)
+		HUDShader:send("targetSphereAngularRadius", angularRadius)
+		HUDShader:send("targetSphereRelativePosition", {vec3.components(relativePosition)})
+
+		HUDShader:send("targetSphereOutlineAngularDistanceThreshold", consts.targetSphereOutlineAngularDistanceThreshold)
+		HUDShader:send("targetSphereOutlineFadePortion", consts.targetSphereOutlineFadePortion)
+	else
+		HUDShader:send("drawTargetSphereOutline", false)
+	end
+	love.graphics.draw(dummyTexture, 0, 0, 0, HUDCanvas:getDimensions())
+
+	love.graphics.setDepthMode("lequal", true)
 	if cameraEntity.radar then
 		-- Draw radar blips and stalks
 		local radarOscillation = math.sin(state.time * cameraEntity.radar.yOscillationFrequency) * cameraEntity.radar.yOscillationAmplitude
@@ -138,7 +175,7 @@ local function drawState(state, graphicsObjects)
 		for entity in state.entities:elements() do
 			if entity ~= cameraEntity then
 				local cameraToEntity = entity.position - cameraEntity.position
-				drawRadarObject(cameraToEntity, cameraEntity.radar.objectColoursByRelation[cameraEntity.team.relations[entity.team] or "neutral"])
+				drawRadarObject(cameraToEntity, cameraEntity.displayObjectColoursByRelation[cameraEntity.team.relations[entity.team] or "neutral"])
 			end
 		end
 		-- Draw radar (last, because it's transparent)
@@ -150,11 +187,18 @@ local function drawState(state, graphicsObjects)
 		radarShader:send("lineThickness", cameraEntity.radar.lineThickness)
 		radarShader:send("angleLineCount", cameraEntity.radar.angleLineCount)
 		love.graphics.draw(radarPlaneMesh)
-		love.graphics.setColor(1, 1, 1)
 	end
+	love.graphics.setColor(1, 1, 1)
 
 	love.graphics.setShader()
+	love.graphics.setDepthMode("always", false)
+	love.graphics.setCanvas(outputCanvas)
+	love.graphics.clear()
+	love.graphics.setBlendMode("alpha", "premultiplied")
+	love.graphics.draw(worldCanvas)
+	love.graphics.draw(HUDCanvas)
 	love.graphics.setCanvas()
+	love.graphics.setBlendMode("alpha")
 end
 
 return drawState

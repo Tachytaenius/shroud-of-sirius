@@ -3,6 +3,7 @@ local vec3 = mathsies.vec3
 local quat = mathsies.quat
 
 local consts = require("consts")
+local settings = require("settings")
 
 local normaliseOrZero = require("modules.normalise-or-zero")
 local moveVectorToTarget = require("modules.move-vector-to-target")
@@ -22,21 +23,21 @@ local function updateState(state, dt, mouseDx, mouseDy)
 	if state.player then
 		local player = state.player
 		local translation = vec3()
-		if love.keyboard.isDown("s") then translation = translation - consts.forwardVector end
-		if love.keyboard.isDown("w") then translation = translation + consts.forwardVector end
-		if love.keyboard.isDown("a") then translation = translation - consts.rightVector end
-		if love.keyboard.isDown("d") then translation = translation + consts.rightVector end
-		if love.keyboard.isDown("q") then translation = translation - consts.upVector end
-		if love.keyboard.isDown("e") then translation = translation + consts.upVector end
+		if love.keyboard.isDown(settings.controls.moveBackwards) then translation = translation - consts.forwardVector end
+		if love.keyboard.isDown(settings.controls.moveForwards) then translation = translation + consts.forwardVector end
+		if love.keyboard.isDown(settings.controls.moveLeft) then translation = translation - consts.rightVector end
+		if love.keyboard.isDown(settings.controls.moveRight) then translation = translation + consts.rightVector end
+		if love.keyboard.isDown(settings.controls.moveDown) then translation = translation - consts.upVector end
+		if love.keyboard.isDown(settings.controls.moveUp) then translation = translation + consts.upVector end
 		player.targetVelocity = vec3.rotate(normaliseOrZero(translation), player.orientation) * player.maxSpeed
 
 		local rotation = vec3()
-		if love.keyboard.isDown("j") then rotation = rotation - consts.upVector end -- Yaw left
-		if love.keyboard.isDown("l") then rotation = rotation + consts.upVector end -- Yaw right
-		if love.keyboard.isDown("i") then rotation = rotation - consts.rightVector end -- Pitch up
-		if love.keyboard.isDown("k") then rotation = rotation + consts.rightVector end -- Pitch down
-		if love.keyboard.isDown("o") then rotation = rotation - consts.forwardVector end -- Roll clockwise
-		if love.keyboard.isDown("u") then rotation = rotation + consts.forwardVector end -- Roll anticlockwise
+		if love.keyboard.isDown(settings.controls.yawLeft) then rotation = rotation - consts.upVector end -- Yaw left
+		if love.keyboard.isDown(settings.controls.yawRight) then rotation = rotation + consts.upVector end -- Yaw right
+		if love.keyboard.isDown(settings.controls.pitchUp) then rotation = rotation - consts.rightVector end -- Pitch up
+		if love.keyboard.isDown(settings.controls.pitchDown) then rotation = rotation + consts.rightVector end -- Pitch down
+		if love.keyboard.isDown(settings.controls.rollClockwise) then rotation = rotation - consts.forwardVector end -- Roll clockwise
+		if love.keyboard.isDown(settings.controls.rollAnticlockwise) then rotation = rotation + consts.forwardVector end -- Roll anticlockwise
 		-- rotation.y = rotation.y + mouseDx
 		-- rotation.x = rotation.x + mouseDy
 		player.targetAngularVelocity = normaliseOrZero(rotation) * player.maxAngularSpeed
@@ -44,7 +45,7 @@ local function updateState(state, dt, mouseDx, mouseDy)
 
 	if state.player then
 		local entity = state.player
-		if love.keyboard.isDown("space") then
+		if love.keyboard.isDown(settings.controls.shoot) then
 			for _, gun in ipairs(entity.guns) do
 				assert(not gun.firing, "Gun should not be firing at this point in update (its firing state was not cleared)")
 				gun.firing = true
@@ -90,6 +91,28 @@ local function updateState(state, dt, mouseDx, mouseDy)
 				gun.beamHitEntity = closestHitEntity
 				gun.beamHitNormal = closestHitNormal
 			end
+		end
+	end
+
+	if state.player then
+		if love.keyboard.isDown(settings.controls.setTargetAhead) then
+			local viewPosition = (state.player.position + vec3.rotate((state.player.cameraOffset or vec3()) * state.player.scale, state.player.orientation))
+			local highestScore, highestScoreEntity
+			for potentialTarget in state.entities:elements() do
+				local dot = vec3.dot(
+					vec3.rotate(consts.forwardVector, state.player.orientation),
+					vec3.normalise(potentialTarget.position - viewPosition)
+				)
+				local score = dot * consts.targettingDistanceVsAlignmentFactor / vec3.distance(viewPosition, potentialTarget.position)
+				if
+					dot > consts.setTargetDotThreshold and
+					(not highestScore or highestScore < score)
+				then
+					highestScore = score
+					highestScoreEntity = potentialTarget
+				end
+			end
+			state.player.currentTarget = highestScoreEntity -- nil OK
 		end
 	end
 

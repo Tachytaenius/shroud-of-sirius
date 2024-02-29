@@ -18,7 +18,15 @@ consts.loadObjCoordMultiplier = vec3(1, 1, -1) -- TODO: Why?
 
 consts.tau = math.pi * 2
 
-consts.targettingAngleDistanceThreshold = 0.0025
+consts.targettingCircleMeshRadiusPadding = 5 -- Could do a multiplier instead
+
+consts.aiTargetTurningAngleDistanceThreshold = 0.0025
+
+consts.setTargetDotThreshold = 0.95
+consts.targettingDistanceVsAlignmentFactor = 100 -- The higher this number is, the less distance reduces the score of a potentially targetted object (object with highest score is targetted, closer aim increases score)
+
+consts.targetSphereOutlineAngularDistanceThreshold = 0.01 -- Thickness of target sphere outline
+consts.targetSphereOutlineFadePortion = 0.75 -- Amount of targetSphereOutlineAngularDistanceThreshold which is fading to zero
 
 consts.forwardVector = vec3(0, 0, 1)
 consts.upVector = vec3(0, 1, 0)

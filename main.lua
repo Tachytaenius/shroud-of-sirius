@@ -39,6 +39,7 @@ function love.load()
 		love.filesystem.read("shaders/background.glsl")
 	)
 	graphicsObjects.solidShader = love.graphics.newShader("shaders/solid.glsl")
+	graphicsObjects.HUDShader = love.graphics.newShader("shaders/hud.glsl")
 
 	graphicsObjects.lineMesh = love.graphics.newMesh(consts.vertexFormat, {
 		{1,1,1, 0,0, 0,0,0}, {0,0,0, 0,0, 0,0,0}, {0,0,0, 0,0, 0,0,0}
@@ -47,14 +48,17 @@ function love.load()
 
 	graphicsObjects.radarPlaneMesh = love.graphics.newMesh(consts.vertexFormat, {
 		{-1,0,-1, 0,0, 0,-1,0}, {1,0,-1, 1,0, 0,-1,0}, {-1,0,1, 0,1, 0,-1,0},
-		{1,0,-1, 1,0, 0,-1,0}, {1,0,1, 1,1, 0,-1,0}, {-1,0,1, 0,1, 0,-1,0},
+		{1,0,-1, 1,0, 0,-1,0}, {1,0,1, 1,1, 0,-1,0}, {-1,0,1, 0,1, 0,-1,0}
 	}, "triangles")
 	graphicsObjects.radarShader = love.graphics.newShader("shaders/radar.glsl")
 
-	graphicsObjects.icosahedronMesh = loadObj("meshes/icosahedron.obj")
-	
+	graphicsObjects.icosahedronMesh = loadObj("meshes/icosahedron.obj").mesh
+
+	graphicsObjects.worldCanvas = love.graphics.newCanvas(love.graphics.getDimensions())
+	graphicsObjects.worldCanvasSetup = {graphicsObjects.worldCanvas, depth = true}
+	graphicsObjects.HUDCanvas = love.graphics.newCanvas(love.graphics.getDimensions())
+	graphicsObjects.HUDCanvasSetup = {graphicsObjects.HUDCanvas, depth = true}
 	graphicsObjects.outputCanvas = love.graphics.newCanvas(love.graphics.getDimensions())
-	graphicsObjects.outputCanvasSetup = {graphicsObjects.outputCanvas, depth = true}
 
 	state = {}
 
@@ -72,7 +76,7 @@ function love.load()
 
 	state.entities = list()
 
-	local mesh, meshVertices = loadObj("meshes/ship.obj")
+	local loadedObj = loadObj("meshes/ship.obj")
 	local player = {
 		position = vec3(),
 		velocity = vec3(),
@@ -85,9 +89,12 @@ function love.load()
 		maxAngularSpeed = 1,
 		angularAcceleration = 2,
 
-		mesh = mesh,
-		meshVertices = meshVertices,
+		mesh = loadedObj.mesh,
+		meshVertices = loadedObj.vertices,
+		meshRadius = loadedObj.radius,
 		albedoTexture = love.graphics.newImage("textures/shipAlbedo.png"),
+
+		currentTarget = nil,
 
 		team = state.teams.aliens,
 		guns = {
@@ -131,15 +138,15 @@ function love.load()
 		verticalFov = math.rad(90),
 		cameraOffset = vec3(0, 0.5, 0.5), -- Scaled by scale
 
+		displayObjectColoursByRelation = {
+			ally = {0, 1, 0},
+			neutral = {1, 1, 0},
+			enemy = {1, 0, 0}
+		},
 		radar = {
 			range = 1000,
 			exponent = 0.5,
 			colour = {1, 0, 0.75, 0.5},
-			objectColoursByRelation = {
-				ally = {0, 1, 0},
-				neutral = {1, 1, 0},
-				enemy = {1, 0, 0}
-			},
 			blipRadius = 0.05,
 			stalkRadius = 0.015,
 			position = vec3(0, -1.1, 2),
@@ -154,7 +161,7 @@ function love.load()
 	state.entities:add(player)
 	state.player = player
 
-	local mesh, meshVertices = loadObj("meshes/ship.obj")
+	local loadedObj = loadObj("meshes/ship.obj")
 	state.entities:add({
 		position = vec3(0, 0, 100),
 		velocity = vec3(),
@@ -167,13 +174,21 @@ function love.load()
 		maxAngularSpeed = 1,
 		angularAcceleration = 2,
 
-		mesh = mesh,
-		meshVertices = meshVertices,
+		mesh = loadedObj.mesh,
+		meshVertices = loadedObj.vertices,
+		meshRadius = loadedObj.radius,
 		albedoTexture = love.graphics.newImage("textures/shipAlbedo.png"),
-		
+
+		currentTarget = nil,
+
 		team = state.teams.humans,
 		guns = {
-			
+
+		},
+
+		ai = {
+			preferredEngagementDistance = 100,
+			engagementDistanceToleranceWidth = 20
 		},
 
 		maxHull = 1000,
