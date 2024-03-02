@@ -11,6 +11,7 @@ local turnEntityToTarget = require("modules.turn-entity-to-target")
 local sphereRaycast = require("modules.sphere-raycast")
 local getGunRay = require("modules.get-gun-ray")
 local traingleRaycast = require("modules.triangle-raycast")
+local getTeamRelation = require("modules.get-team-relation")
 
 local function updateState(state, dt, mouseDx, mouseDy)
 	for entity in state.entities:elements() do
@@ -122,7 +123,7 @@ local function updateState(state, dt, mouseDx, mouseDy)
 			-- if not entity.currentTarget then
 				local closest, closestDistance
 				for potentialTarget in state.entities:elements() do
-					if entity ~= potentialTarget and entity.team.relations[potentialTarget.team] == "enemy" then
+					if entity ~= potentialTarget and getTeamRelation(entity, potentialTarget) == "enemy" then
 						local distance = vec3.distance(entity.position, potentialTarget.position)
 						if not closest or distance < closestDistance then
 							closest = potentialTarget

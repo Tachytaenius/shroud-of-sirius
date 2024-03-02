@@ -9,6 +9,7 @@ local normalMatrix = require("modules.normal-matrix")
 local drawBeam = require("modules.draw-beam")
 local normaliseOrZero = require("modules.normalise-or-zero")
 local getGunRay = require("modules.get-gun-ray")
+local getTeamRelation = require("modules.get-team-relation")
 
 local function drawState(state, graphicsObjects)
 	local cameraEntity = state.player
@@ -112,7 +113,7 @@ local function drawState(state, graphicsObjects)
 	if cameraEntity.currentTarget then
 		HUDShader:send("drawTargetSphereOutline", true)
 
-		HUDShader:send("targetSphereOutlineColour", cameraEntity.displayObjectColoursByRelation[cameraEntity.team.relations[cameraEntity.currentTarget.team] or "neutral"])
+		HUDShader:send("targetSphereOutlineColour", cameraEntity.displayObjectColoursByRelation[getTeamRelation(cameraEntity, cameraEntity.currentTarget)])
 		local relativePosition = cameraEntity.currentTarget.position - viewPosition
 		local sphereRadius = cameraEntity.currentTarget.meshRadius * cameraEntity.currentTarget.scale + consts.targettingCircleMeshRadiusPadding
 		local angularRadius = math.acos( -- TODO: Clamp to protect against NaN?
@@ -173,7 +174,7 @@ local function drawState(state, graphicsObjects)
 		for entity in state.entities:elements() do
 			if entity ~= cameraEntity then
 				local cameraToEntity = entity.position - cameraEntity.position
-				drawRadarObject(cameraToEntity, cameraEntity.displayObjectColoursByRelation[cameraEntity.team.relations[entity.team] or "neutral"])
+				drawRadarObject(cameraToEntity, cameraEntity.displayObjectColoursByRelation[getTeamRelation(cameraEntity, entity)])
 			end
 		end
 		-- Draw radar (last, because it's transparent)
