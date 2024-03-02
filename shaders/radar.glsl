@@ -1,9 +1,9 @@
 #ifdef VERTEX
 
-uniform mat4 planeToScreen;
+uniform mat4 planeToClip;
 
 vec4 position(mat4 loveTransform, vec4 homogenVertexPosition) {
-	vec4 ret = planeToScreen * homogenVertexPosition;
+	vec4 ret = planeToClip * homogenVertexPosition;
 	return ret;
 }
 

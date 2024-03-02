@@ -76,7 +76,7 @@ function love.load()
 
 	state.entities = list()
 
-	local loadedObj = loadObj("meshes/ship.obj")
+	local loadedObj = loadObj("meshes/alien-ship.obj")
 	local player = {
 		position = vec3(),
 		velocity = vec3(),
@@ -92,7 +92,7 @@ function love.load()
 		mesh = loadedObj.mesh,
 		meshVertices = loadedObj.vertices,
 		meshRadius = loadedObj.radius,
-		albedoTexture = love.graphics.newImage("textures/shipAlbedo.png"),
+		albedoTexture = love.graphics.newImage("textures/alien-ship-albedo.png"),
 
 		currentTarget = nil,
 
@@ -161,45 +161,48 @@ function love.load()
 	state.entities:add(player)
 	state.player = player
 
-	local loadedObj = loadObj("meshes/ship.obj")
-	state.entities:add({
-		position = vec3(0, 0, 100),
-		velocity = vec3(),
-		maxSpeed = 100,
-		acceleration = 200,
-		scale = 20,
+	for _=1, 50 do
+		local alien = love.math.random() < 0.5
+		local loadedObj = loadObj(alien and "meshes/alien-ship.obj" or "meshes/human-ship.obj")
+		state.entities:add({
+			position = 500 * (vec3(love.math.random(), love.math.random(), love.math.random()) * 2 - 1),
+			velocity = vec3(),
+			maxSpeed = 100,
+			acceleration = 200,
+			scale = 20,
 
-		orientation = quat(),
-		angularVelocity = vec3(),
-		maxAngularSpeed = 1,
-		angularAcceleration = 2,
+			orientation = quat(),
+			angularVelocity = vec3(),
+			maxAngularSpeed = 1,
+			angularAcceleration = 2,
 
-		mesh = loadedObj.mesh,
-		meshVertices = loadedObj.vertices,
-		meshRadius = loadedObj.radius,
-		albedoTexture = love.graphics.newImage("textures/shipAlbedo.png"),
+			mesh = loadedObj.mesh,
+			meshVertices = loadedObj.vertices,
+			meshRadius = loadedObj.radius,
+			albedoTexture = love.graphics.newImage(alien and "textures/alien-ship-albedo.png" or "textures/human-ship-albedo.png"),
 
-		currentTarget = nil,
+			currentTarget = nil,
 
-		team = state.teams.humans,
-		guns = {
+			team = alien and state.teams.aliens or state.teams.humans,
+			guns = {
 
-		},
+			},
 
-		ai = {
-			preferredEngagementDistance = 150,
-			engagementDistanceToleranceWidth = 20
-		},
-		scannerRange = 1000,
+			ai = {
+				preferredEngagementDistance = 150,
+				engagementDistanceToleranceWidth = 20
+			},
+			scannerRange = 1000,
 
-		maxHull = 1000,
-		hull = 1000,
+			maxHull = 1000,
+			hull = 1000,
 
-		verticalFov = math.rad(70),
-		cameraOffset = vec3(),
+			verticalFov = math.rad(70),
+			cameraOffset = vec3(),
 
-		colliderRadius = 0.75
-	})
+			colliderRadius = 0.75
+		})
+	end
 end
 
 function love.update(dt)

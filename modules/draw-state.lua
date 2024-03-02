@@ -45,12 +45,11 @@ local function drawState(state, graphicsObjects)
 	local cameraMatrixStationary = mat4.camera(vec3(), cameraEntity.orientation) -- For background
 
 	-- Draw sky
-	local picturePlaneToSkyMatrix = mat4.inverse(projectionMatrix * cameraMatrixStationary)
+	local clipToSkyMatrix = mat4.inverse(projectionMatrix * cameraMatrixStationary)
 	love.graphics.setDepthMode("always", false)
 	love.graphics.setShader(backgroundShader)
 	backgroundShader:send("time", state.time)
-	backgroundShader:send("nearPlaneDistance", consts.nearPlaneDistance)
-	backgroundShader:send("picturePlaneToSky", {mat4.components(picturePlaneToSkyMatrix)})
+	backgroundShader:send("clipToSky", {mat4.components(clipToSkyMatrix)})
 	backgroundShader:send("starAngularRadius", consts.starAngularRadius)
 	backgroundShader:send("starHaloAngularRange", consts.starHaloAngularRange)
 	backgroundShader:send("starDirection", {vec3.components(consts.starDirection)})
@@ -71,13 +70,13 @@ local function drawState(state, graphicsObjects)
 	for entity in state.entities:elements() do
 		if entity ~= cameraEntity then
 			local modelToWorldMatrix = mat4.transform(entity.position, entity.orientation, entity.scale)
-			local modelToScreenMatrix = projectionMatrix * cameraMatrix * modelToWorldMatrix
+			local modelToClipMatrix = projectionMatrix * cameraMatrix * modelToWorldMatrix
 
 			shipShader:send("shipAlbedo", entity.albedoTexture)
 			shipShader:send("skyMultiplier", consts.shipShaderSkyMultiplier)
 			shipShader:send("ambientLight", {vec3.components(vec3(consts.ambientLightIntensity))})
 			shipShader:send("modelToWorld", {mat4.components(modelToWorldMatrix)})
-			shipShader:send("modelToScreen", {mat4.components(modelToScreenMatrix)})
+			shipShader:send("modelToClip", {mat4.components(modelToClipMatrix)})
 			shipShader:send("modelToWorldNormal", {normalMatrix(mat4.transform(entity.position, entity.orientation))})
 
 			love.graphics.draw(entity.mesh)
@@ -108,8 +107,7 @@ local function drawState(state, graphicsObjects)
 
 	love.graphics.setDepthMode("always", false)
 	love.graphics.setShader(HUDShader)
-	HUDShader:send("picturePlaneToSky", {mat4.components(picturePlaneToSkyMatrix)})
-	HUDShader:send("nearPlaneDistance", consts.nearPlaneDistance)
+	HUDShader:send("clipToSky", {mat4.components(clipToSkyMatrix)})
 	love.graphics.setColor(1, 1, 1)
 	if cameraEntity.currentTarget then
 		HUDShader:send("drawTargetSphereOutline", true)
@@ -151,7 +149,7 @@ local function drawState(state, graphicsObjects)
 
 				love.graphics.setColor(colour)
 
-				solidShader:send("modelToScreen", {mat4.components(projectionMatrix * radarTransform * mat4.transform(
+				solidShader:send("modelToClip", {mat4.components(projectionMatrix * radarTransform * mat4.transform(
 					posInRadarSpace, quat(), cameraEntity.radar.blipRadius
 				))})
 				love.graphics.draw(icosahedronMesh)
@@ -167,7 +165,7 @@ local function drawState(state, graphicsObjects)
 				-- love.graphics.setWireframe(true)
 				-- lineShader:send("origin", {vec3.components(posInRadarSpace * vec3(1, 0, 1))})
 				-- lineShader:send("lineVector", {vec3.components(posInRadarSpace * vec3(0, 1, 0))})
-				-- lineShader:send("worldToScreen", {mat4.components(projectionMatrix * radarTransform)})
+				-- lineShader:send("worldToClip", {mat4.components(projectionMatrix * radarTransform)})
 				-- love.graphics.draw(lineMesh)
 				-- love.graphics.setWireframe(false)
 			end
@@ -181,7 +179,7 @@ local function drawState(state, graphicsObjects)
 		-- Draw radar (last, because it's transparent)
 		love.graphics.setColor(cameraEntity.radar.colour)
 		love.graphics.setShader(radarShader)
-		radarShader:send("planeToScreen", {mat4.components(projectionMatrix * radarTransform)})
+		radarShader:send("planeToClip", {mat4.components(projectionMatrix * radarTransform)})
 		radarShader:send("exponent", cameraEntity.radar.exponent)
 		radarShader:send("distanceCircleCount", cameraEntity.radar.distanceCircleCount)
 		radarShader:send("lineThickness", cameraEntity.radar.lineThickness)

@@ -7,7 +7,7 @@ varying vec3 fragmentPosition;
 
 uniform mat4 modelToWorld;
 uniform mat3 modelToWorldNormal;
-uniform mat4 modelToScreen;
+uniform mat4 modelToClip;
 
 attribute vec3 VertexNormal;
 
@@ -16,7 +16,7 @@ vec4 position(mat4 loveTransform, vec4 homogenVertexPosition) {
 
 	fragmentPosition = (modelToWorld * homogenVertexPosition).xyz;
 
-	return modelToScreen * homogenVertexPosition;
+	return modelToClip * homogenVertexPosition;
 }
 
 #endif

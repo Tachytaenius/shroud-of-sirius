@@ -1,5 +1,5 @@
-uniform mat4 modelToScreen;
+uniform mat4 modelToClip;
 
 vec4 position(mat4 loveTransform, vec4 homogenVertexPosition) {;
-	return modelToScreen * homogenVertexPosition;
+	return modelToClip * homogenVertexPosition;
 }

@@ -12,8 +12,7 @@ float calculateFogFactor2(float dist, float fogFadeLength) { // More fog the clo
 	return clamp(1 - dist / fogFadeLength, 0.0, 1.0);
 }
 
-uniform mat4 picturePlaneToSky;
-uniform float nearPlaneDistance;
+uniform mat4 clipToSky;
 
 uniform bool drawTargetSphereOutline;
 uniform vec3 targetSphereOutlineColour;
@@ -24,11 +23,12 @@ uniform float targetSphereOutlineFadePortion;
 
 vec4 effect(vec4 colour, sampler2D image, vec2 textureCoords, vec2 windowCoords) {
 	// This solution to get the direction was figured out by me
+	// Commented version in background.glsl
 	vec3 direction = normalize(
 		(
-			picturePlaneToSky * vec4( // picturePlaneToSky is inverse(perspectiveProjectionMatrix * cameraMatrixAtOriginWithCameraOrientation), and the vec4 is a position on the picture plane (same thing as the near plane of the view frustum, I'm pretty sure) in homogenous coordinates. I suspect it is in camera space, but I'm not certain, so I'm calling the matrix picturePlaneToSky and not cameraToSky
+			clipToSky * vec4(
 				textureCoords * 2.0 - 1.0,
-				nearPlaneDistance,
+				-1.0,
 				1.0
 			)
 		).xyz
