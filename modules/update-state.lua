@@ -10,7 +10,7 @@ local moveVectorToTarget = require("modules.move-vector-to-target")
 local turnEntityToTarget = require("modules.turn-entity-to-target")
 local sphereRaycast = require("modules.sphere-raycast")
 local getGunRay = require("modules.get-gun-ray")
-local traingleRaycast = require("modules.triangle-raycast")
+local triangleRaycast = require("modules.triangle-raycast")
 local getTeamRelation = require("modules.get-team-relation")
 
 local function updateState(state, dt, mouseDx, mouseDy)
@@ -57,29 +57,49 @@ local function updateState(state, dt, mouseDx, mouseDy)
 					if entity ~= entity2 then
 						local rayEnd = rayStart + ray
 
+						-- Sphere as the collider:
 						-- local t1, t2 = sphereRaycast(rayStart, rayEnd, entity2.position, entity2.colliderRadius * entity2.scale)
+						-- Might make more sense to make it that if inside sphere, set t to 0 (solid sphere)
 						-- if t1 and 0 <= t1 and t1 <= 1 and (not closestHitT or t1 < closestHitT) then
-						-- 	closestHitT = t1
-						-- 	closestEntity = entity2
+						-- 	hit
 						-- end
 						-- if t2 and 0 <= t2 and t2 <= 1 and (not closestHitT or t2 < closestHitT) then
-						-- 	closestHitT = t2
-						-- 	closestEntity = entity2
+						-- 	different hit
 						-- end
 
-						for i = 1, #entity2.meshVertices, 3 do
-							local meshV1 = entity2.meshVertices[i]
-							local meshV2 = entity2.meshVertices[i + 1]
-							local meshV3 = entity2.meshVertices[i + 2]
-							-- TODO: Probably rotate and translate beam instead of mesh
-							local v1 = entity2.position + vec3.rotate(entity2.scale * vec3(meshV1[1], meshV1[2], meshV1[3]), entity2.orientation)
-							local v2 = entity2.position + vec3.rotate(entity2.scale * vec3(meshV2[1], meshV2[2], meshV2[3]), entity2.orientation)
-							local v3 = entity2.position + vec3.rotate(entity2.scale * vec3(meshV3[1], meshV3[2], meshV3[3]), entity2.orientation)
-							local t, normal = traingleRaycast(rayStart, rayEnd, v1, v2, v3)
-							if t and 0 <= t and t <= 1 and (not closestHitT or t < closestHitT) then
-								closestHitT = t
-								closestHitEntity = entity2
-								closestHitNormal = normal
+						-- Do a sphere raycast to determine whether triangles should be checked against
+						local t1, t2 = sphereRaycast(rayStart, rayEnd, entity2.position, entity2.meshRadius * entity2.scale)
+						local checkMesh = false
+						if t1 and t2 then -- Always returned together
+							if 0 <= t1 and t1 <= 1 and (not closestHitT or t1 < closestHitT) then
+								checkMesh = true
+							-- Unless we're inside the sphere or the sphere is behind us, t2 should not be less than t1
+							-- elseif 0 <= t2 and t2 <= 1 and (not closestHitT or t2 < closestHitT) then
+							-- 	checkMesh = true
+							elseif
+								t1 <= 0 and 0 <= t2
+								or t2 <= 0 and 0 <= t1 -- t2 should never be less than t1, but idk what limited precision can bring about
+							then
+								-- rayStart is inside sphere
+								checkMesh = true
+							end
+						end
+						if checkMesh then
+							local rayStartTransformed = vec3.rotate(rayStart - entity2.position, quat.inverse(entity2.orientation)) / entity2.scale
+							local rayEndTransformed = vec3.rotate(rayEnd - entity2.position, quat.inverse(entity2.orientation)) / entity2.scale
+							for i = 1, #entity2.meshVertices, 3 do
+								local v1Table = entity2.meshVertices[i]
+								local v2Table = entity2.meshVertices[i + 1]
+								local v3Table = entity2.meshVertices[i + 2]
+								local v1 = vec3(v1Table[1], v1Table[2], v1Table[3])
+								local v2 = vec3(v2Table[1], v2Table[2], v2Table[3])
+								local v3 = vec3(v3Table[1], v3Table[2], v3Table[3])
+								local t, normal = triangleRaycast(rayStartTransformed, rayEndTransformed, v1, v2, v3)
+								if t and 0 <= t and t <= 1 and (not closestHitT or t < closestHitT) then
+									closestHitT = t
+									closestHitEntity = entity2
+									closestHitNormal = normal
+								end
 							end
 						end
 					end
