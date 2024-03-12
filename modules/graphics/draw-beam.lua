@@ -5,10 +5,10 @@ local mat4 = mathsies.mat4
 
 local consts = require("consts")
 
-local axisAngleVectorBetweenVectors = require("modules.axis-angle-between-vectors")
-local normalMatrix = require("modules.normal-matrix")
+local axisAngleVectorBetweenVectors = require("modules.maths.axis-angle-between-vectors")
+local normalMatrix = require("modules.graphics.normal-matrix")
 
-local baseCylinderMesh = require("modules.generate-base-cylinder")(consts.verticesPerBeamCylinderSlice)
+local baseCylinderMesh = require("modules.mesh-generation.generate-base-cylinder")(consts.verticesPerBeamCylinderSlice)
 
 local function drawBeam(origin, lineVector, radius, worldToClipMatrix)
 	local lineLength, lineDirection = #lineVector, vec3.normalise(lineVector)

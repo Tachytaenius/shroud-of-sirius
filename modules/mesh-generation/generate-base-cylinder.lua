@@ -2,7 +2,7 @@ local vec3 = require("lib.mathsies").vec3
 
 local consts = require("consts")
 
-local shallowClone = require("modules.shallow-clone")
+local shallowClone = require("modules.util.shallow-clone")
 
 local function generateBaseCylinder(verticesPerSlice)
 	local slices = {}

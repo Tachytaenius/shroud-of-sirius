@@ -5,13 +5,13 @@ local quat = mathsies.quat
 local consts = require("consts")
 local settings = require("settings")
 
-local normaliseOrZero = require("modules.normalise-or-zero")
-local moveVectorToTarget = require("modules.move-vector-to-target")
-local turnEntityToTarget = require("modules.turn-entity-to-target")
-local sphereRaycast = require("modules.sphere-raycast")
-local getGunRay = require("modules.get-gun-ray")
-local triangleRaycast = require("modules.triangle-raycast")
-local getTeamRelation = require("modules.get-team-relation")
+local normaliseOrZero = require("modules.maths.normalise-or-zero")
+local moveVectorToTarget = require("modules.maths.move-vector-to-target")
+local turnEntityToTarget = require("modules.entity.turn-entity-to-target")
+local sphereRaycast = require("modules.raycast.sphere-raycast")
+local getGunRay = require("modules.util.get-gun-ray")
+local triangleRaycast = require("modules.raycast.triangle-raycast")
+local getTeamRelation = require("modules.util.get-team-relation")
 
 local function updateState(state, dt, mouseDx, mouseDy)
 	for entity in state.entities:elements() do

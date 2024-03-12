@@ -7,7 +7,7 @@ local list = require("lib.list")
 
 local consts = require("consts")
 
-local loadObj = require("modules.load-obj")
+local loadObj = require("modules.mesh-generation.load-obj")
 local updateState = require("modules.update-state")
 local drawState = require("modules.draw-state")
 

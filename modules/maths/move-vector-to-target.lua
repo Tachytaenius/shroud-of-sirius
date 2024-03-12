@@ -1,4 +1,4 @@
-local normaliseOrZero = require("modules.normalise-or-zero")
+local normaliseOrZero = require("modules.maths.normalise-or-zero")
 
 return function(current, target, rate, dt)
 	local currentToTarget = target - current

@@ -4,7 +4,7 @@ local quat = mathsies.quat
 
 local consts = require("consts")
 
-local axisAngleVectorBetweenVectors = require("modules.axis-angle-between-vectors")
+local axisAngleVectorBetweenVectors = require("modules.maths.axis-angle-between-vectors")
 
 local function turnEntityToTarget(entity, targetPosition, dt)
 	if targetPosition ~= entity.position then

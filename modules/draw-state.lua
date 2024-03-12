@@ -5,11 +5,11 @@ local mat4 = mathsies.mat4
 
 local consts = require("consts")
 
-local normalMatrix = require("modules.normal-matrix")
-local drawBeam = require("modules.draw-beam")
-local normaliseOrZero = require("modules.normalise-or-zero")
-local getGunRay = require("modules.get-gun-ray")
-local getTeamRelation = require("modules.get-team-relation")
+local normalMatrix = require("modules.graphics.normal-matrix")
+local drawBeam = require("modules.graphics.draw-beam")
+local normaliseOrZero = require("modules.maths.normalise-or-zero")
+local getGunRay = require("modules.util.get-gun-ray")
+local getTeamRelation = require("modules.util.get-team-relation")
 
 local function drawState(state, graphicsObjects)
 	local cameraEntity = state.player
