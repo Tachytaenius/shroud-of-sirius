@@ -116,10 +116,7 @@ local function drawState(state, graphicsObjects)
 		HUDShader:send("targetSphereOutlineColour", cameraEntity.displayObjectColoursByRelation[getTeamRelation(cameraEntity, cameraEntity.currentTarget)])
 		local relativePosition = cameraEntity.currentTarget.position - viewPosition
 		local sphereRadius = cameraEntity.currentTarget.meshRadius * cameraEntity.currentTarget.scale + consts.targettingCircleMeshRadiusPadding
-		local angularRadius = math.acos( -- TODO: Clamp to protect against NaN?
-			math.sqrt((#relativePosition) ^ 2 - sphereRadius ^ 2)
-			/ #relativePosition
-		)
+		local angularRadius = math.asin(sphereRadius / #relativePosition)
 		HUDShader:send("targetSphereAngularRadius", angularRadius)
 		HUDShader:send("targetSphereRelativePosition", {vec3.components(relativePosition)})
 
