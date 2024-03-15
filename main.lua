@@ -110,6 +110,7 @@ function love.load()
 				beamHitEntity = nil,
 				beamHitPos = nil,
 				beamHitNormal = nil,
+				triggered = false,
 				firing = false
 
 				-- Etc
@@ -126,6 +127,7 @@ function love.load()
 				beamHitEntity = nil,
 				beamHitPos = nil,
 				beamHitNormal = nil,
+				triggered = false,
 				firing = false
 
 				-- Etc
