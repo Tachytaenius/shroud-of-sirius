@@ -11,8 +11,8 @@ consts.vertexFormat = {
 }
 consts.frontFaceWinding = "cw"
 consts.meshCullMode = "back"
-consts.farPlaneDistance = 1000
-consts.nearPlaneDistance = 0.01
+consts.farPlaneDistance = 10000
+consts.nearPlaneDistance = 0.1
 -- Export OBJs from Blender with +Y up and +Z forward
 consts.loadObjCoordMultiplier = vec3(1, 1, -1) -- TODO: Why?
 
