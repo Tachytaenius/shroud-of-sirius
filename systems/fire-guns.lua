@@ -34,7 +34,7 @@ local function fireGuns(state, entity)
 					-- end
 
 					-- Do a sphere raycast to determine whether triangles should be checked against
-					local t1, t2 = sphereRaycast(rayStart, rayEnd, entity2.position, entity2.meshRadius * entity2.scale)
+					local t1, t2 = sphereRaycast(rayStart, rayEnd, entity2.position, entity2.shipAsset.meshBundle.radius * entity2.scale)
 					local checkMesh = false
 					if t1 and t2 then -- Always returned together
 						if 0 <= t1 and t1 <= 1 and (not closestHitT or t1 < closestHitT) then
@@ -54,10 +54,11 @@ local function fireGuns(state, entity)
 					if checkMesh then
 						local rayStartTransformed = vec3.rotate(rayStart - entity2.position, quat.inverse(entity2.orientation)) / entity2.scale
 						local rayEndTransformed = vec3.rotate(rayEnd - entity2.position, quat.inverse(entity2.orientation)) / entity2.scale
-						for i = 1, #entity2.meshVertices, 3 do
-							local v1Table = entity2.meshVertices[i]
-							local v2Table = entity2.meshVertices[i + 1]
-							local v3Table = entity2.meshVertices[i + 2]
+						local vertices = entity2.shipAsset.meshBundle.vertices
+						for i = 1, #vertices, 3 do
+							local v1Table = vertices[i]
+							local v2Table = vertices[i + 1]
+							local v3Table = vertices[i + 2]
 							local v1 = vec3(v1Table[1], v1Table[2], v1Table[3])
 							local v2 = vec3(v2Table[1], v2Table[2], v2Table[3])
 							local v3 = vec3(v3Table[1], v3Table[2], v3Table[3])

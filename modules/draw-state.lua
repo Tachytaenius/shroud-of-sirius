@@ -4,6 +4,7 @@ local quat = mathsies.quat
 local mat4 = mathsies.mat4
 
 local consts = require("consts")
+local assets = require("assets")
 
 local normalMatrix = require("modules.graphics.normal-matrix")
 local drawBeam = require("modules.graphics.draw-beam")
@@ -20,7 +21,6 @@ local function drawState(state, graphicsObjects)
 	local radarPlaneMesh, radarShader, solidShader = graphicsObjects.radarPlaneMesh, graphicsObjects.radarShader, graphicsObjects.solidShader
 	local shipShader, backgroundShader = graphicsObjects.shipShader, graphicsObjects.backgroundShader
 	local HUDShader = graphicsObjects.HUDShader
-	local icosahedronMesh = graphicsObjects.icosahedronMesh
 	local worldCanvas = graphicsObjects.worldCanvas
 	local worldCanvasSetup = graphicsObjects.worldCanvasSetup
 	local HUDCanvas = graphicsObjects.HUDCanvas
@@ -73,14 +73,14 @@ local function drawState(state, graphicsObjects)
 			local modelToWorldMatrix = mat4.transform(entity.position, entity.orientation, entity.scale)
 			local modelToClipMatrix = projectionMatrix * cameraMatrix * modelToWorldMatrix
 
-			shipShader:send("shipAlbedo", entity.albedoTexture)
+			shipShader:send("shipAlbedo", entity.shipAsset.albedo)
 			shipShader:send("skyMultiplier", consts.shipShaderSkyMultiplier)
 			shipShader:send("ambientLight", {vec3.components(vec3(consts.ambientLightIntensity))})
 			shipShader:send("modelToWorld", {mat4.components(modelToWorldMatrix)})
 			shipShader:send("modelToClip", {mat4.components(modelToClipMatrix)})
 			shipShader:send("modelToWorldNormal", {normalMatrix(mat4.transform(entity.position, entity.orientation))})
 
-			love.graphics.draw(entity.mesh)
+			love.graphics.draw(entity.shipAsset.meshBundle.mesh)
 		end
 	end
 
@@ -115,7 +115,7 @@ local function drawState(state, graphicsObjects)
 
 		HUDShader:send("targetSphereOutlineColour", cameraEntity.displayObjectColoursByRelation[getTeamRelation(cameraEntity, cameraEntity.currentTarget)])
 		local relativePosition = cameraEntity.currentTarget.position - viewPosition
-		local sphereRadius = cameraEntity.currentTarget.meshRadius * cameraEntity.currentTarget.scale + consts.targettingCircleMeshRadiusPadding
+		local sphereRadius = cameraEntity.currentTarget.shipAsset.meshBundle.radius * cameraEntity.currentTarget.scale + consts.targettingCircleMeshRadiusPadding
 		local angularRadius = math.asin(sphereRadius / #relativePosition)
 		HUDShader:send("targetSphereAngularRadius", angularRadius)
 		HUDShader:send("targetSphereRelativePosition", {vec3.components(relativePosition)})
@@ -150,7 +150,7 @@ local function drawState(state, graphicsObjects)
 				solidShader:send("modelToClip", {mat4.components(projectionMatrix * radarTransform * mat4.transform(
 					posInRadarSpace, quat(), cameraEntity.radar.blipRadius
 				))})
-				love.graphics.draw(icosahedronMesh)
+				love.graphics.draw(assets.meshes.icosahedron)
 
 				drawBeam(
 					posInRadarSpace * vec3(1, 0, 1),

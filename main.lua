@@ -6,6 +6,7 @@ local quat = mathsies.quat
 local list = require("lib.list")
 
 local consts = require("consts")
+local assets = require("assets")
 
 local loadObj = require("modules.mesh-generation.load-obj")
 local updateState = require("modules.update-state")
@@ -23,6 +24,8 @@ function love.load()
 	love.graphics.setFrontFaceWinding(consts.frontFaceWinding)
 	love.graphics.setMeshCullMode(consts.meshCullMode)
 	love.graphics.setDefaultFilter("nearest", "nearest")
+
+	assets.load()
 
 	graphicsObjects = {}
 
@@ -52,8 +55,6 @@ function love.load()
 	}, "triangles")
 	graphicsObjects.radarShader = love.graphics.newShader("shaders/radar.glsl")
 
-	graphicsObjects.icosahedronMesh = loadObj("meshes/icosahedron.obj").mesh
-
 	graphicsObjects.worldCanvas = love.graphics.newCanvas(love.graphics.getDimensions())
 	graphicsObjects.worldCanvasSetup = {graphicsObjects.worldCanvas, depth = true}
 	graphicsObjects.HUDCanvas = love.graphics.newCanvas(love.graphics.getDimensions())
@@ -76,7 +77,6 @@ function love.load()
 
 	state.entities = list()
 
-	local loadedObj = loadObj("meshes/alien-ship.obj")
 	local player = {
 		position = vec3(),
 		velocity = vec3(),
@@ -89,10 +89,7 @@ function love.load()
 		maxAngularSpeed = 1,
 		angularAcceleration = 2,
 
-		mesh = loadedObj.mesh,
-		meshVertices = loadedObj.vertices,
-		meshRadius = loadedObj.radius,
-		albedoTexture = love.graphics.newImage("textures/alien-ship-albedo.png"),
+		shipAsset = assets.ships.alienShip,
 
 		currentTarget = nil,
 
@@ -165,7 +162,6 @@ function love.load()
 
 	for _=1, 50 do
 		local alien = love.math.random() < 0.5
-		local loadedObj = loadObj(alien and "meshes/alien-ship.obj" or "meshes/human-ship.obj")
 		state.entities:add({
 			position = 500 * (vec3(love.math.random(), love.math.random(), love.math.random()) * 2 - 1),
 			velocity = vec3(),
@@ -178,10 +174,7 @@ function love.load()
 			maxAngularSpeed = 1,
 			angularAcceleration = 2,
 
-			mesh = loadedObj.mesh,
-			meshVertices = loadedObj.vertices,
-			meshRadius = loadedObj.radius,
-			albedoTexture = love.graphics.newImage(alien and "textures/alien-ship-albedo.png" or "textures/human-ship-albedo.png"),
+			shipAsset = assets.ships[alien and "alienShip" or "humanShip"],
 
 			currentTarget = nil,
 
