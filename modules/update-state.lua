@@ -20,7 +20,7 @@ local function updateState(state, dt, mouseDx, mouseDy)
 	end
 
 	for entity in state.entities:elements() do
-		if entity.ai and state.player ~= entity then
+		if entity.aiEnabled and state.player ~= entity then
 			aiControlEntityTargetting(state, entity)
 			-- aiControlEntityGuns
 			aiControlEntityMovement(entity)

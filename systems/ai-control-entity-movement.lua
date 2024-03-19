@@ -8,10 +8,10 @@ local function aiControlEntityMovement(entity)
 		local entityToTargetDirection = normaliseOrZero(entityToTarget)
 		local entityToTargetDistance = #entityToTarget
 		-- Could probably use math.max and math.min or something instead of two checks per if statement
-		if entityToTargetDistance > entity.ai.preferredEngagementDistance and entityToTargetDistance > entity.ai.preferredEngagementDistance + entity.ai.engagementDistanceToleranceWidth / 2 then
-			entity.targetVelocity = entityToTargetDirection * entity.maxSpeed
-		elseif entityToTargetDistance < entity.ai.preferredEngagementDistance and entityToTargetDistance < entity.ai.preferredEngagementDistance - entity.ai.engagementDistanceToleranceWidth / 2 then
-			entity.targetVelocity = -entityToTargetDirection * entity.maxSpeed
+		if entityToTargetDistance > entity.class.preferredEngagementDistance and entityToTargetDistance > entity.class.preferredEngagementDistance + entity.class.engagementDistanceToleranceWidth / 2 then
+			entity.targetVelocity = entityToTargetDirection * entity.class.maxSpeed
+		elseif entityToTargetDistance < entity.class.preferredEngagementDistance and entityToTargetDistance < entity.class.preferredEngagementDistance - entity.class.engagementDistanceToleranceWidth / 2 then
+			entity.targetVelocity = -entityToTargetDirection * entity.class.maxSpeed
 		else
 			entity.targetVelocity = vec3()
 		end

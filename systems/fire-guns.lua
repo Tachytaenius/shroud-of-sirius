@@ -24,7 +24,7 @@ local function fireGuns(state, entity)
 					local rayEnd = rayStart + ray
 
 					-- Sphere as the collider:
-					-- local t1, t2 = sphereRaycast(rayStart, rayEnd, entity2.position, entity2.colliderRadius * entity2.scale)
+					-- local t1, t2 = sphereRaycast(rayStart, rayEnd, entity2.position, entity2.colliderRadius * entity2.class.scale)
 					-- Might make more sense to make it that if inside sphere, set t to 0 (solid sphere)
 					-- if t1 and 0 <= t1 and t1 <= 1 and (not closestHitT or t1 < closestHitT) then
 					-- 	hit
@@ -34,7 +34,7 @@ local function fireGuns(state, entity)
 					-- end
 
 					-- Do a sphere raycast to determine whether triangles should be checked against
-					local t1, t2 = sphereRaycast(rayStart, rayEnd, entity2.position, entity2.shipAsset.meshBundle.radius * entity2.scale)
+					local t1, t2 = sphereRaycast(rayStart, rayEnd, entity2.position, entity2.class.shipAsset.meshBundle.radius * entity2.class.scale)
 					local checkMesh = false
 					if t1 and t2 then -- Always returned together
 						if 0 <= t1 and t1 <= 1 and (not closestHitT or t1 < closestHitT) then
@@ -52,9 +52,9 @@ local function fireGuns(state, entity)
 					end
 
 					if checkMesh then
-						local rayStartTransformed = vec3.rotate(rayStart - entity2.position, quat.inverse(entity2.orientation)) / entity2.scale
-						local rayEndTransformed = vec3.rotate(rayEnd - entity2.position, quat.inverse(entity2.orientation)) / entity2.scale
-						local vertices = entity2.shipAsset.meshBundle.vertices
+						local rayStartTransformed = vec3.rotate(rayStart - entity2.position, quat.inverse(entity2.orientation)) / entity2.class.scale
+						local rayEndTransformed = vec3.rotate(rayEnd - entity2.position, quat.inverse(entity2.orientation)) / entity2.class.scale
+						local vertices = entity2.class.shipAsset.meshBundle.vertices
 						for i = 1, #vertices, 3 do
 							local v1Table = vertices[i]
 							local v2Table = vertices[i + 1]

@@ -34,11 +34,11 @@ local function drawState(state, graphicsObjects)
 
 	local projectionMatrix = mat4.perspectiveLeftHanded(
 		love.graphics.getWidth() / love.graphics.getHeight(),
-		cameraEntity.verticalFov,
+		cameraEntity.class.verticalFov,
 		consts.farPlaneDistance,
 		consts.nearPlaneDistance
 	)
-	local viewPosition = cameraEntity.position + vec3.rotate((cameraEntity.cameraOffset or vec3()) * cameraEntity.scale, cameraEntity.orientation)
+	local viewPosition = cameraEntity.position + vec3.rotate((cameraEntity.class.cameraOffset or vec3()) * cameraEntity.class.scale, cameraEntity.orientation)
 	local cameraMatrix = mat4.camera(
 		viewPosition,
 		cameraEntity.orientation
@@ -70,17 +70,17 @@ local function drawState(state, graphicsObjects)
 	shipShader:send("cameraPosition", {vec3.components(viewPosition)})
 	for entity in state.entities:elements() do
 		if entity ~= cameraEntity then
-			local modelToWorldMatrix = mat4.transform(entity.position, entity.orientation, entity.scale)
+			local modelToWorldMatrix = mat4.transform(entity.position, entity.orientation, entity.class.scale)
 			local modelToClipMatrix = projectionMatrix * cameraMatrix * modelToWorldMatrix
 
-			shipShader:send("shipAlbedo", entity.shipAsset.albedo)
+			shipShader:send("shipAlbedo", entity.class.shipAsset.albedo)
 			shipShader:send("skyMultiplier", consts.shipShaderSkyMultiplier)
 			shipShader:send("ambientLight", {vec3.components(vec3(consts.ambientLightIntensity))})
 			shipShader:send("modelToWorld", {mat4.components(modelToWorldMatrix)})
 			shipShader:send("modelToClip", {mat4.components(modelToClipMatrix)})
 			shipShader:send("modelToWorldNormal", {normalMatrix(mat4.transform(entity.position, entity.orientation))})
 
-			love.graphics.draw(entity.shipAsset.meshBundle.mesh)
+			love.graphics.draw(entity.class.shipAsset.meshBundle.mesh)
 		end
 	end
 
@@ -113,9 +113,9 @@ local function drawState(state, graphicsObjects)
 	if cameraEntity.currentTarget then
 		HUDShader:send("drawTargetSphereOutline", true)
 
-		HUDShader:send("targetSphereOutlineColour", cameraEntity.displayObjectColoursByRelation[getTeamRelation(cameraEntity, cameraEntity.currentTarget)])
+		HUDShader:send("targetSphereOutlineColour", cameraEntity.class.displayObjectColoursByRelation[getTeamRelation(cameraEntity, cameraEntity.currentTarget)])
 		local relativePosition = cameraEntity.currentTarget.position - viewPosition
-		local sphereRadius = cameraEntity.currentTarget.shipAsset.meshBundle.radius * cameraEntity.currentTarget.scale + consts.targettingCircleMeshRadiusPadding
+		local sphereRadius = cameraEntity.currentTarget.class.shipAsset.meshBundle.radius * cameraEntity.currentTarget.class.scale + consts.targettingCircleMeshRadiusPadding
 		local angularRadius = math.asin(sphereRadius / #relativePosition)
 		HUDShader:send("targetSphereAngularRadius", angularRadius)
 		HUDShader:send("targetSphereRelativePosition", {vec3.components(relativePosition)})
@@ -128,34 +128,34 @@ local function drawState(state, graphicsObjects)
 	love.graphics.draw(dummyTexture, 0, 0, 0, HUDCanvas:getDimensions())
 
 	love.graphics.setDepthMode("lequal", true)
-	if cameraEntity.radar then
+	if cameraEntity.class.radar then
 		-- Draw radar blips and stalks
-		local radarOscillation = math.sin(state.time * cameraEntity.radar.yOscillationFrequency) * cameraEntity.radar.yOscillationAmplitude
+		local radarOscillation = math.sin(state.time * cameraEntity.class.radar.yOscillationFrequency) * cameraEntity.class.radar.yOscillationAmplitude
 		local radarTransform = mat4.transform(
-			cameraEntity.radar.position + vec3(0, radarOscillation, 0),
+			cameraEntity.class.radar.position + vec3(0, radarOscillation, 0),
 			quat(),
-			cameraEntity.radar.scale
+			cameraEntity.class.radar.scale
 		)
 		local function drawRadarObject(relativePosition, colour)
 			local distance = #relativePosition
 			love.graphics.setShader(solidShader)
-			if distance <= cameraEntity.scannerRange then
+			if distance <= cameraEntity.class.scannerRange then
 				local direction = normaliseOrZero(relativePosition)
 				local newDirection = vec3.rotate(direction, quat.inverse(cameraEntity.orientation))
-				local newDistance = (distance / cameraEntity.scannerRange) ^ cameraEntity.radar.exponent
+				local newDistance = (distance / cameraEntity.class.scannerRange) ^ cameraEntity.class.radar.exponent
 				local posInRadarSpace = newDirection * newDistance
 
 				love.graphics.setColor(colour)
 
 				solidShader:send("modelToClip", {mat4.components(projectionMatrix * radarTransform * mat4.transform(
-					posInRadarSpace, quat(), cameraEntity.radar.blipRadius
+					posInRadarSpace, quat(), cameraEntity.class.radar.blipRadius
 				))})
 				love.graphics.draw(assets.meshes.icosahedron)
 
 				drawBeam(
 					posInRadarSpace * vec3(1, 0, 1),
 					posInRadarSpace * vec3(0, 1, 0),
-					cameraEntity.radar.stalkRadius,
+					cameraEntity.class.radar.stalkRadius,
 					projectionMatrix * radarTransform
 				)
 
@@ -171,17 +171,17 @@ local function drawState(state, graphicsObjects)
 		for entity in state.entities:elements() do
 			if entity ~= cameraEntity then
 				local cameraToEntity = entity.position - cameraEntity.position
-				drawRadarObject(cameraToEntity, cameraEntity.displayObjectColoursByRelation[getTeamRelation(cameraEntity, entity)])
+				drawRadarObject(cameraToEntity, cameraEntity.class.displayObjectColoursByRelation[getTeamRelation(cameraEntity, entity)])
 			end
 		end
 		-- Draw radar (last, because it's transparent)
-		love.graphics.setColor(cameraEntity.radar.colour)
+		love.graphics.setColor(cameraEntity.class.radar.colour)
 		love.graphics.setShader(radarShader)
 		radarShader:send("planeToClip", {mat4.components(projectionMatrix * radarTransform)})
-		radarShader:send("exponent", cameraEntity.radar.exponent)
-		radarShader:send("distanceCircleCount", cameraEntity.radar.distanceCircleCount)
-		radarShader:send("lineThickness", cameraEntity.radar.lineThickness)
-		radarShader:send("angleLineCount", cameraEntity.radar.angleLineCount)
+		radarShader:send("exponent", cameraEntity.class.radar.exponent)
+		radarShader:send("distanceCircleCount", cameraEntity.class.radar.distanceCircleCount)
+		radarShader:send("lineThickness", cameraEntity.class.radar.lineThickness)
+		radarShader:send("angleLineCount", cameraEntity.class.radar.angleLineCount)
 		love.graphics.draw(radarPlaneMesh)
 	end
 	love.graphics.setColor(1, 1, 1)

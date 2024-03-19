@@ -7,8 +7,8 @@ local list = require("lib.list")
 
 local consts = require("consts")
 local assets = require("assets")
+local classes = require("classes")
 
-local loadObj = require("modules.mesh-generation.load-obj")
 local updateState = require("modules.update-state")
 local drawState = require("modules.draw-state")
 
@@ -26,6 +26,7 @@ function love.load()
 	love.graphics.setDefaultFilter("nearest", "nearest")
 
 	assets.load()
+	classes.load()
 
 	graphicsObjects = {}
 
@@ -77,126 +78,22 @@ function love.load()
 
 	state.entities = list()
 
-	local player = {
+	local player = classes.AlienShip({
 		position = vec3(),
-		velocity = vec3(),
-		maxSpeed = 100,
-		acceleration = 200,
-		scale = 20,
-
-		orientation = quat(),
-		angularVelocity = vec3(),
-		maxAngularSpeed = 1,
-		angularAcceleration = 2,
-
-		shipAsset = assets.ships.alienShip,
-
-		currentTarget = nil,
-
-		team = state.teams.aliens,
-		guns = {
-			{
-				offset = vec3(-0.2, 0, 0), -- Scaled by scale
-				type = "laser",
-				beamColour = {0, 1, 1},
-				damagePerSecond = 200,
-				beamRange = 500,
-				beamRadius = 0.4,
-
-				beamHitT = nil,
-				beamHitEntity = nil,
-				beamHitPos = nil,
-				beamHitNormal = nil,
-				triggered = false,
-				firing = false
-
-				-- Etc
-			},
-			{
-				offset = vec3(0.2, 0, 0), -- Scaled by scale
-				type = "laser",
-				beamColour = {0, 1, 1},
-				damagePerSecond = 200,
-				beamRange = 500,
-				beamRadius = 0.4,
-
-				beamHitT = nil,
-				beamHitEntity = nil,
-				beamHitPos = nil,
-				beamHitNormal = nil,
-				triggered = false,
-				firing = false
-
-				-- Etc
-			}
-		},
-
-		maxHull = 1000,
-		hull = 1000,
-
-		verticalFov = math.rad(90),
-		cameraOffset = vec3(0, 0.5, 0.5), -- Scaled by scale
-
-		displayObjectColoursByRelation = {
-			ally = {0, 1, 0},
-			neutral = {1, 1, 0},
-			enemy = {1, 0, 0}
-		},
-		scannerRange = 1000,
-		radar = {
-			exponent = 0.5,
-			colour = {1, 0, 0.75, 0.5},
-			blipRadius = 0.05,
-			stalkRadius = 0.015,
-			position = vec3(0, -1.1, 2),
-			scale = 0.75,
-			yOscillationFrequency = 0.5,
-			yOscillationAmplitude = 0.05,
-			distanceCircleCount = 6,
-			lineThickness = 0.015,
-			angleLineCount = 10
-		}
-	}
+		team = state.teams.aliens
+	})
 	state.entities:add(player)
 	state.player = player
 
 	for _=1, 50 do
 		local alien = love.math.random() < 0.5
-		state.entities:add({
-			position = 500 * (vec3(love.math.random(), love.math.random(), love.math.random()) * 2 - 1),
-			velocity = vec3(),
-			maxSpeed = 100,
-			acceleration = 200,
-			scale = 20,
-
-			orientation = quat(),
-			angularVelocity = vec3(),
-			maxAngularSpeed = 1,
-			angularAcceleration = 2,
-
-			shipAsset = assets.ships[alien and "alienShip" or "humanShip"],
-
-			currentTarget = nil,
-
-			team = alien and state.teams.aliens or state.teams.humans,
-			guns = {
-
-			},
-
-			ai = {
-				preferredEngagementDistance = 150,
-				engagementDistanceToleranceWidth = 20
-			},
-			scannerRange = 1000,
-
-			maxHull = 1000,
-			hull = 1000,
-
-			verticalFov = math.rad(70),
-			cameraOffset = vec3(),
-
-			colliderRadius = 0.75
-		})
+		state.entities:add(
+			(alien and classes.AlienShip or classes.HumanShip)({
+				position = 500 * (vec3(love.math.random(), love.math.random(), love.math.random()) * 2 - 1),
+				team = alien and state.teams.aliens or state.teams.humans,
+				aiEnabled = true
+			})
+		)
 	end
 end
 

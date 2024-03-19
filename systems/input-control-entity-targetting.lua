@@ -5,7 +5,7 @@ local settings = require("settings")
 
 local function controlEntityTargetting(state, entity)
 	if love.keyboard.isDown(settings.controls.setTargetAhead) then
-		local viewPosition = (entity.position + vec3.rotate((entity.cameraOffset or vec3()) * entity.scale, entity.orientation))
+		local viewPosition = (entity.position + vec3.rotate((entity.class.cameraOffset or vec3()) * entity.class.scale, entity.orientation))
 		local highestScore, highestScoreEntity
 		for potentialTarget in state.entities:elements() do
 			local dot = vec3.dot(

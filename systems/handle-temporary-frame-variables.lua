@@ -4,6 +4,9 @@ local function handleTemporaryFrameVariables(state)
 			gun.triggered = false
 			gun.firing = false
 			gun.beamHitT = nil
+			gun.beamHitEntity = nil
+			gun.beamHitPos = nil
+			gun.beamHitNormal = nil
 		end
 	end
 end
