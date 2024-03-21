@@ -22,4 +22,13 @@ function Laser:initialize(args)
 	self.beamHitNormal = nil
 end
 
+function Laser:clearTemporaryFields()
+	Laser.super.clearTemporaryFields(self)
+
+	self.beamHitT = nil
+	self.beamHitEntity = nil
+	self.beamHitPos = nil
+	self.beamHitNormal = nil
+end
+
 return Laser

@@ -1,11 +1,15 @@
 local moveVectorToTarget = require("modules.maths.move-vector-to-target")
 
 local function accelerateToTargetVelocities(entity, dt)
-	if entity.targetVelocity then
-		entity.velocity = moveVectorToTarget(entity.velocity, entity.targetVelocity, entity.class.acceleration, dt)
+	if not entity.will then
+		return
 	end
-	if entity.targetAngularVelocity then
-		entity.angularVelocity = moveVectorToTarget(entity.angularVelocity, entity.targetAngularVelocity, entity.class.angularAcceleration, dt)
+
+	if entity.will.targetVelocity then
+		entity.velocity = moveVectorToTarget(entity.velocity, entity.will.targetVelocity, entity.class.acceleration, dt)
+	end
+	if entity.will.targetAngularVelocity then
+		entity.angularVelocity = moveVectorToTarget(entity.angularVelocity, entity.will.targetAngularVelocity, entity.class.angularAcceleration, dt)
 	end
 end
 

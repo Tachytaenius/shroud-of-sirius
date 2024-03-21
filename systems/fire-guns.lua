@@ -12,8 +12,10 @@ local function fireGuns(state, entity)
 	end
 
 	for _, gun in ipairs(entity.guns) do
-		assert(not gun.firing, "Gun should not be firing at this point in update (its firing state was not cleared)")
-		if gun.triggered then
+		assert(gun.firing == nil, "Gun firing state should not be set at this point in update (its firing state was not cleared)")
+		if not gun.triggered then
+			gun.firing = false
+		else
 			gun.firing = true -- For drawing
 
 			local closestHitT, closestHitEntity, closestHitNormal

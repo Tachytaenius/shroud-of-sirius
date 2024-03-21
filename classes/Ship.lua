@@ -26,4 +26,16 @@ function Ship:initialize(args)
 	self.guns = {}
 end
 
+function Ship:clearTemporaryFields()
+	Ship.super:clearTemporaryFields()
+
+	self.will = nil
+
+	if self.guns then
+		for _, gun in ipairs(self.guns) do
+			gun:clearTemporaryFields()
+		end
+	end
+end
+
 return Ship

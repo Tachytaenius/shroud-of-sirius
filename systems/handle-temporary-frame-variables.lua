@@ -1,13 +1,9 @@
 local function handleTemporaryFrameVariables(state)
 	for entity in state.entities:elements() do
-		for _, gun in ipairs(entity.guns) do
-			gun.triggered = false
-			gun.firing = false
-			gun.beamHitT = nil
-			gun.beamHitEntity = nil
-			gun.beamHitPos = nil
-			gun.beamHitNormal = nil
-		end
+		entity:clearTemporaryFields()
+		-- if entity.aiEnabled or entity == state.player then
+			entity.will = {} -- Avoid any potential bugs with enabling AI or setting player mid-frame and then there not being a will table
+		-- end
 	end
 end
 

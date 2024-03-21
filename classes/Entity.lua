@@ -15,4 +15,8 @@ function Entity:initialize(args)
 	self.angularVelocity = args.angularVelocity or vec3()
 end
 
+function Entity:clearTemporaryFields()
+
+end
+
 return Entity
