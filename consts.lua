@@ -28,6 +28,13 @@ consts.targettingDistanceVsAlignmentFactor = 100 -- The higher this number is, t
 consts.targetSphereOutlineAngularDistanceThreshold = 0.01 -- Thickness of target sphere outline
 consts.targetSphereOutlineFadePortion = 0.75 -- Amount of targetSphereOutlineAngularDistanceThreshold which is fading to zero
 
+consts.rotationCursorColour = {0.75, 0.75, 0.75}
+consts.rotationCursorDisplayMultiplier = 0.175
+consts.rotationCursorAngularRadius = 0.01
+
+consts.centreDotColour = {1, 1, 1}
+consts.centreDotAngularRadius = 0.005
+
 consts.forwardVector = vec3(0, 0, 1)
 consts.upVector = vec3(0, 1, 0)
 consts.rightVector = vec3(1, 0, 0)

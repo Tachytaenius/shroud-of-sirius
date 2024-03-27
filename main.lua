@@ -19,6 +19,16 @@ function love.mousemoved(_, _, dx, dy)
 	mouseDx, mouseDy = dx, dy
 end
 
+function love.mousepressed()
+	love.mouse.setRelativeMode(true)
+end
+
+function love.keypressed(key)
+	if key == "escape" then
+		love.mouse.setRelativeMode(false)
+	end
+end
+
 function love.load()
 	love.graphics.setLineStyle("rough")
 	love.graphics.setFrontFaceWinding(consts.frontFaceWinding)
@@ -95,10 +105,16 @@ function love.load()
 			})
 		)
 	end
+
+	state.rotationCursor = vec3() -- If switching player entities is added, ensure that this is reset
 end
 
 function love.update(dt)
-	updateState(state, dt, mouseDx or 0, mouseDy or 0)
+	if not (mouseDx and mouseDy) or love.mouse.getRelativeMode() == false then
+		mouseDx = 0
+		mouseDy = 0
+	end
+	updateState(state, dt, mouseDx, mouseDy)
 	mouseDx, mouseDy = nil, nil
 end
 

@@ -7,14 +7,16 @@ local aiControlEntityMovement = require("systems.ai-control-entity-movement")
 local fireGuns = require("systems.fire-guns")
 local accelerateToTargetVelocities = require("systems.accelerate-to-target-velocities")
 local integrateVelocities = require("systems.integrate-velocities")
+local handleRotationCursor = require("systems.handle-rotation-cursor")
 
 local turnEntityToTarget = require("modules.entity.turn-entity-to-target")
 
 local function updateState(state, dt, mouseDx, mouseDy)
 	handleTemporaryFrameVariables(state)
 
+	handleRotationCursor(state, mouseDx, mouseDy)
 	if state.player then
-		inputControlEntityMovement(state.player, mouseDx, mouseDy)
+		inputControlEntityMovement(state, state.player)
 		inputControlEntityGuns(state.player)
 		inputControlEntityTargetting(state, state.player)
 	end

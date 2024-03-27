@@ -105,9 +105,10 @@ local function drawState(state, graphicsObjects)
 
 	love.graphics.setCanvas(HUDCanvasSetup)
 	love.graphics.clear()
-
 	love.graphics.setDepthMode("always", false)
+	love.graphics.setBlendMode("add", "premultiplied")
 	love.graphics.setShader(HUDShader)
+
 	HUDShader:send("clipToSky", {mat4.components(clipToSkyMatrix)})
 	love.graphics.setColor(1, 1, 1)
 	if cameraEntity.currentTarget then
@@ -125,8 +126,30 @@ local function drawState(state, graphicsObjects)
 	else
 		HUDShader:send("drawTargetSphereOutline", false)
 	end
+
+	HUDShader:send("drawRotationCursor", true)
+	HUDShader:send("rotationCursorColour", consts.rotationCursorColour)
+	HUDShader:send("rotationCursorDirection", {vec3.components(
+		vec3.rotate(
+			consts.forwardVector,
+			cameraEntity.orientation * quat.fromAxisAngle(consts.rotationCursorDisplayMultiplier * state.rotationCursor)
+		)
+	)})
+	HUDShader:send("rotationCursorAngularRadius", consts.rotationCursorAngularRadius)
+
+	HUDShader:send("drawCentreDot", true)
+	HUDShader:send("centreDotColour", consts.centreDotColour)
+	HUDShader:send("centreDotDirection", {vec3.components(
+		vec3.rotate(
+			consts.forwardVector,
+			cameraEntity.orientation
+		)
+	)})
+	HUDShader:send("centreDotAngularRadius", consts.centreDotAngularRadius)
+
 	love.graphics.draw(dummyTexture, 0, 0, 0, HUDCanvas:getDimensions())
 
+	love.graphics.setBlendMode("alpha", "alphamultiply")
 	love.graphics.setDepthMode("lequal", true)
 	if cameraEntity.class.radar then
 		-- Draw radar blips and stalks
